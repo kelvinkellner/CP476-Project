@@ -31,6 +31,13 @@ CONST SQL_CREATE_FINAL_GRADE_TABLE = "CREATE TABLE IF NOT EXISTS final_grade (
     grade_final DOUBLE(5,2),
     PRIMARY KEY (student_id, course_code)
 )";
+CONST SQL_CREATE_AUTH_TABLE = "CREATE TABLE IF NOT EXISTS auth (
+    user_name VARCHAR(30) NOT NULL,
+    id INT(9) PRIMARY KEY,
+    is_admin TINYINT(1) NOT NULL DEFAULT 0,
+    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)";
+CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, id, is_admin) VALUES " . SQL_DEFAULT_AUTH_USERS;
 
 function connect_to_mysql(): mysqli {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -58,6 +65,8 @@ function create_all_tables(mysqli $conn) {
         $conn->query(SQL_CREATE_NAME_TABLE);
         $conn->query(SQL_CREATE_COURSE_TABLE);
         $conn->query(SQL_CREATE_FINAL_GRADE_TABLE);
+        $conn->query(SQL_CREATE_AUTH_TABLE);
+        $conn->query(SQL_INSERT_DEFAULT_AUTH_USERS);
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
