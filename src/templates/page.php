@@ -23,4 +23,6 @@ include_once(SITE_ROOT.'/config/private.php');
 <?php include_once(SITE_ROOT.'/modules/db/init_db.php'); ?>
 <?php init_db(); ?>
 
+<?php include_once(SITE_ROOT.'/modules/db/use_db.php'); ?>
+
 <?php include_once(__DIR__.'/inc/footer.php'); ?>
