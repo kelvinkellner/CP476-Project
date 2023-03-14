@@ -33,7 +33,7 @@ CONST SQL_CREATE_FINAL_GRADE_TABLE = "CREATE TABLE IF NOT EXISTS final_grade (
 )";
 
 function connect_to_mysql(): mysqli {
-    // mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     try {
         # SQL variables come from config/private.php
         $conn = new mysqli(HOST, USERNAME, PASSWORD);

@@ -20,7 +20,7 @@ include_once(SITE_ROOT.'/config/private.php');
 // Your main content goes here 
 ?> 
 
-<?php include_once(SITE_ROOT.'/modules/init_db/init_db.php'); ?>
+<?php include_once(SITE_ROOT.'/modules/db/init_db.php'); ?>
 <?php init_db(); ?>
 
 <?php include_once(__DIR__.'/inc/footer.php'); ?>
