@@ -8,9 +8,10 @@ include_once(__DIR__.'/../../config/config.php');
 <?php
 require_once(SITE_ROOT.'/modules/db/use_db.php');
 
-if (isset($_SESSION['user_name']) && isset($_SESSION['user_id'])) {
-    echo "<h3>Welcome, {$_SESSION['user_name']}</h3>";
+if (isset($_SESSION['user'])) {
+    echo "<h3>Welcome, {$_SESSION['user']['user_name']}</h3>";
 } else {
+
     echo <<<HTML
 <h3>Login</h3>
 <form action="handle_login.php" method="post">

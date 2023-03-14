@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form
     $user_name = $_POST['user_name'];
     $user_id = $_POST['user_id'];
     if (auth_login($user_name, $user_id)) { // Success!
-        echo "<h3>Welcome, {$_SESSION['user']['user_name']}</h3>";
+        header("Location: {$_SERVER["HTTP_REFERER"]}");
     }
 } else { // Problem!
     // TODO: Confirm what to do in this case

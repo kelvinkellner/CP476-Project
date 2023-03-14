@@ -59,7 +59,7 @@ function auth_user_get(string $user_name, string $user_id): array {
     if ($count == 1) {
         return $user;
     }
-    return false;
+    return [];
 };
 function auth_logout() {
     # Logout
