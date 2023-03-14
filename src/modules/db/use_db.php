@@ -52,13 +52,14 @@ function auth_user_get(string $user_name, string $user_id): array {
     # Get user's info
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
     $sql = "SELECT * FROM auth WHERE user_name = '$user_name' AND user_id = '$user_id'";
-    $count = $conn->query($sql)->num_rows;
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    $user = $result->fetch_assoc();
     $conn->close();
-    if ($count < 1) {
-        return [];
-    } else {
-        return $conn->query($sql)->fetch_assoc();
+    if ($count == 1) {
+        return $user;
     }
+    return false;
 };
 function auth_logout() {
     # Logout
