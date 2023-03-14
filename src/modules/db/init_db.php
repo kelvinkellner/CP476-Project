@@ -6,9 +6,9 @@ include_once(__DIR__.'/../../config/config.php');
 ?>
 
 <?php
-// Init DB
-
 require_once(SITE_ROOT.'/config/private.php');
+
+// Init DB
 
 CONST SQL_CREATE_DB = "CREATE DATABASE IF NOT EXISTS " . DB_NAME;
 CONST SQL_CREATE_NAME_TABLE = "CREATE TABLE IF NOT EXISTS name (
