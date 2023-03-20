@@ -31,8 +31,12 @@ CONST SQL_CREATE_AUTH_TABLE = "CREATE TABLE IF NOT EXISTS auth (
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_name, user_id)
 )";
+CONST SQL_DROP_ALL_TABLES = "DROP TABLE IF EXISTS name, course, final_grade, auth";
 CONST SQL_COUNT_AUTH_USERS = "SELECT COUNT(*) FROM auth";
-// CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES " . SQL_DEFAULT_AUTH_USERS;
+CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES (?, ?, ?)";
+CONST SQL_INSERT_DEFAULT_NAMES = "INSERT INTO name (student_id, student_name) VALUES (?, ?)";
+CONST SQL_INSERT_DEFAULT_COURSES = "INSERT INTO course (student_id, course_code, grade_test_1, grade_test_2, grade_test_3, grade_exam) VALUES (?, ?, ?, ?, ?, ?)";
+
 function connect_to_mysql(): mysqli {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     try {
@@ -49,7 +53,6 @@ function connect_to_mysql(): mysqli {
     }
     return null;
 };
-CONST SQL_DROP_ALL_TABLES = "DROP TABLE IF EXISTS name, course, final_grade, auth";
 
 function close_connection_to_mysql(mysqli $conn) {
     $conn->close();
