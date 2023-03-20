@@ -3,12 +3,21 @@ include_once(__DIR__.'/src/templates/head.php');
 ?>
 
 <?php
-// echo session_unset(); // TODO: remove eventually
+// Log the use out if logout button is pressed
+if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['logout']))
+    session_unset();
+?>
+
+<?php
+// Display different content depending on if user is logged in
 if (array_key_exists('user', $_SESSION)) {
-    echo '<br>';
-    echo $_SESSION['user']['user_name'].'<br>';
-    echo $_SESSION['user']['user_id'].'<br>';
-    echo $_SESSION['user']['is_admin'].'<br>';
+    if ($_SESSION['user']['is_admin'])
+        echo "Logged in as: ".$_SESSION['user']['user_name'].' ('.$_SESSION['user']['user_id'].' - Admin)';
+    else
+        echo "Logged in as: ".$_SESSION['user']['user_name'].' ('.$_SESSION['user']['user_id'].')';
+    include(__DIR__.'/src/auth/logout_button.php');
+    echo "<br>";
+    include_once(__DIR__.'/src/table_viewer/container.php');
 } else {
     include_once(__DIR__.'/src/auth/login.php');
 }

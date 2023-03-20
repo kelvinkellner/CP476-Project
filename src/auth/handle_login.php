@@ -13,5 +13,4 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form
     // TODO: Confirm what to do in this case
     echo "<h3>Invalid login</h3>";
 }
-
 ?>

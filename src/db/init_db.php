@@ -4,9 +4,8 @@ require_once(__DIR__.'/../../private.php');
 function parse_file(string $file_path): array {
     $file = fopen($file_path, 'r');
     $data = [];
-    while (($line = fgets($file)) !== FALSE) {
+    while (($line = fgets($file)) !== FALSE)
         $data[] = explode(', ', $line);
-    }
     fclose($file);
     return $data;
 }
@@ -21,10 +20,10 @@ CONST SQL_CREATE_NAME_TABLE = "CREATE TABLE IF NOT EXISTS name (
 CONST SQL_CREATE_COURSE_TABLE = "CREATE TABLE IF NOT EXISTS course (
     student_id INT(9) NOT NULL,
     course_code VARCHAR(5) NOT NULL,
-    grade_test_1 DOUBLE(5,2),
-    grade_test_2 DOUBLE(5,2),
-    grade_test_3 DOUBLE(5,2),
-    grade_exam DOUBLE(5,2),
+    grade_test_1 INT(3),
+    grade_test_2 INT(3),
+    grade_test_3 INT(3),
+    grade_exam INT(3),
     PRIMARY KEY (student_id, course_code)
 )";
 CONST SQL_CREATE_FINAL_GRADE_TABLE = "CREATE TABLE IF NOT EXISTS final_grade (
@@ -83,9 +82,12 @@ function fill_default_values(PDO $conn) {
         $stmt_user = $conn->prepare(SQL_INSERT_DEFAULT_AUTH_USERS);
         $stmt_course = $conn->prepare(SQL_INSERT_DEFAULT_COURSES);
         $stmt_name = $conn->prepare(SQL_INSERT_DEFAULT_NAMES);
-        foreach($default_auth_users as $user) $stmt_user->execute($user);
-        foreach($default_courses as $course) $stmt_course->execute($course);
-        foreach($default_names as $name) $stmt_name->execute($name);
+        foreach($default_auth_users as $user)
+            $stmt_user->execute($user);
+        foreach($default_courses as $course)
+            $stmt_course->execute($course);
+        foreach($default_names as $name)
+            $stmt_name->execute($name);
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
@@ -104,7 +106,6 @@ function init_db(): bool {
     $conn = connect_to_mysql();
     // Create database, after successful connection create tables
     if ($conn->exec(SQL_CREATE_DB)) {
-        echo "HELLLOOOO";
         // echo "Database created successfully"; // TODO: remove or replace at some point
         $conn->exec(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
         create_all_tables($conn);
