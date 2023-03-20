@@ -1,12 +1,9 @@
 <?php
-// Strict Typing Mode
-declare(strict_types = 1);
-// Import Root Constants, etc.
-include_once(__DIR__.'/../../config/config.php');
+include_once(__DIR__.'/../templates/head.php');
 ?>
 
 <?php
-require_once(SITE_ROOT.'/config/private.php');
+require_once(__DIR__.'/../../private.php');
 
 // Auth
 function auth_login(string $user_name, string $user_id): bool {

@@ -1,12 +1,5 @@
 <?php
-// Strict Typing Mode
-declare(strict_types = 1);
-// Import Root Constants, etc.
-include_once(__DIR__.'/../../config/config.php');
-?>
-
-<?php
-require_once(SITE_ROOT.'/config/private.php');
+require_once(__DIR__.'/../../private.php');
 
 // Init DB
 
@@ -39,7 +32,7 @@ CONST SQL_CREATE_AUTH_TABLE = "CREATE TABLE IF NOT EXISTS auth (
     PRIMARY KEY (user_name, user_id)
 )";
 CONST SQL_COUNT_AUTH_USERS = "SELECT COUNT(*) FROM auth";
-CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES " . SQL_DEFAULT_AUTH_USERS;
+// CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES " . SQL_DEFAULT_AUTH_USERS;
 function connect_to_mysql(): mysqli {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     try {
@@ -71,7 +64,7 @@ function create_all_tables(mysqli $conn) {
         $conn->query(SQL_CREATE_AUTH_TABLE);
         $num_auth_users = $conn->query(SQL_COUNT_AUTH_USERS)->fetch_array()[0];
         if ($num_auth_users < 1) {
-            $conn->query(SQL_INSERT_DEFAULT_AUTH_USERS);
+            // $conn->query(SQL_INSERT_DEFAULT_AUTH_USERS);
         }
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
@@ -82,9 +75,9 @@ function init_db(): mysqli {
     $conn = connect_to_mysql();
     // Create database, after successful connection create tables
     if ($conn->query(SQL_CREATE_DB) === TRUE) {
-        echo "Database created successfully";
+        // echo "Database created successfully"; // TODO: remove or replace at some point
         $conn->select_db(DB_NAME);
-        $conn->query(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
+        // $conn->query(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
         create_all_tables($conn);
         close_connection_to_mysql($conn);
     } else {
