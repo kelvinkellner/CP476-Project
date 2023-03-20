@@ -8,7 +8,7 @@ foreach ($student_grades as $student_grade)
     $student_grade_lookup[$student_grade['student_id']][$student_grade['course_code']] = $student_grade;
 ?>
 
-<table>
+<table id="grade_table">
     <tr>
         <th>Student ID</th>
         <th>Student Name</th>
@@ -22,7 +22,7 @@ foreach ($student_grades as $student_grade)
     </tr>
     <?php
         foreach ($courses as $row) {
-            echo "<tr>";
+            echo "<tr class=\"row\">";
             echo "<td>".$row['student_id']."</td>";
             echo "<td>".$student_grade_lookup[$row['student_id']][$row['course_code']]['student_name']."</td>";
             echo "<td>".$row['course_code']."</td>";
@@ -37,7 +37,7 @@ foreach ($student_grades as $student_grade)
                 echo "<input type='hidden' name='student_id' value='".$row['student_id']."'>";
                 echo "<input type='hidden' name='course_code' value='".$row['course_code']."'>";
                 echo "<input type='submit' name='edit' value='Edit'>";
-                echo "<input type='submit' name='delete' value='Delete'>";
+                echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
                 echo "</form>";
                 echo "</td>";
             }

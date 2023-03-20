@@ -3,7 +3,7 @@ include_once(__DIR__.'/../../db/use_db.php');
 $is_admin = $_SESSION['user']['is_admin'];
 $users = auth_user_get_all();
 ?>
-<table>
+<table id="user_table">
     <tr>
         <th>User Name</th>
         <th>User ID</th>
@@ -13,7 +13,7 @@ $users = auth_user_get_all();
     </tr>
     <?php
         foreach ($users as $user) {
-            echo "<tr>";
+            echo "<tr class=\"row\">";
             echo "<td>".$user['user_name']."</td>";
             echo "<td>".$user['user_id']."</td>";
             echo "<td>".($user['is_admin']? "YES": "-")."</td>";
@@ -22,7 +22,7 @@ $users = auth_user_get_all();
             echo "<form action='auth.php' method='post'>";
             echo "<input type='hidden' name='user_id' value='".$user['user_id']."'>";
             echo "<input type='submit' name='edit' value='Edit'>";
-            echo "<input type='submit' name='delete' value='Delete'>";
+            echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
             echo "</form>";
             echo "</td>";
             echo "</tr>";

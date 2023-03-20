@@ -3,7 +3,7 @@ include_once(__DIR__.'/../../db/use_db.php');
 $is_admin = $_SESSION['user']['is_admin'];
 $courses = course_get_unique_courses();
 ?>
-<table>
+<table id="course_table">
     <tr>
         <th>Course Code</th>
         <th># Students Enrolled</th>
@@ -11,7 +11,7 @@ $courses = course_get_unique_courses();
     </tr>
     <?php
         foreach ($courses as $course) {
-            echo "<tr>";
+            echo "<tr class=\"row\">";
             echo "<td>".$course['course_code']."</td>";
             echo "<td>".$course['student_count']."</td>";
             if ($is_admin) {
@@ -19,7 +19,7 @@ $courses = course_get_unique_courses();
                 echo "<form action='course.php' method='post'>";
                 echo "<input type='hidden' name='course_code' value='".$course['course_code']."'>";
                 echo "<input type='submit' name='edit' value='Edit'>";
-                echo "<input type='submit' name='delete' value='Delete'>";
+                echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
                 echo "</form>";
                 echo "</td>";
             }

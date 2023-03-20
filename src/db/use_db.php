@@ -128,7 +128,17 @@ function course_get_all() {
     $conn->close();
     return $courses;
 };
-function course_get_courses_by_student_id() {};
+function course_get_courses_by_student_id($student_id) {
+    # Get courses by student id
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM course WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+    $courses = [];
+    while ($row = $result->fetch_assoc())
+        array_push($courses, $row);
+    $conn->close();
+    return $courses;
+};
 function course_get_students_by_course_code() {};
 function course_get_course_by_student_id_and_course_code() {};
 
