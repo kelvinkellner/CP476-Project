@@ -93,3 +93,7 @@ function grade_get_grades_by_course_code() {};
 function grade_get_grades_by_student_id_and_course_code() {};
 
 ?>
+
+<?php
+include_once(__DIR__.'/../templates/footer.php');
+?>
