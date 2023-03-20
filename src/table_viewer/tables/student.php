@@ -1,8 +1,23 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
 $is_admin = $_SESSION['user']['is_admin'];
-$students = student_get_all();
+$students = (array_key_exists('cache', $_SESSION) and array_key_exists('student', $_SESSION['cache']))? $_SESSION['cache']['student']: student_get_all();
 ?>
+<form id="add">
+    <label>Add a new student: </label>
+    <input type="text" name="student_id" placeholder="Student ID">
+    <input type="text" name="student_name" placeholder="Student Name">
+    <input type="submit" name="add" value="Add">
+</form>
+<br/>
+<form id="search">
+    <label><strong>Search</strong></label><br/>
+    <input type="text" name="student_id" placeholder="Student ID">
+    <input type="text" name="student_name" placeholder="Student Name">
+    <input type="submit" name="search" value="Search">
+    <input type="submit" name="clear" value="Clear Filters">
+</form>
+<br/>
 <table id="students_table">
     <tr>
         <th>Student ID</th>

@@ -1,5 +1,6 @@
 <?php
 include_once(__DIR__.'/selector.php');
+echo '<br/>';
 $is_admin = $_SESSION['user']['is_admin'];
 if($_SERVER['REQUEST_METHOD'] == "POST") {
     if(isset($_POST['student']))
