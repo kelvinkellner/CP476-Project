@@ -92,7 +92,20 @@ function auth_user_search($user_name='', $user_id='') {
 
 // Students
 function student_exists() {};
-function student_add() {};
+function student_add($student_id, $student_name) {
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    # Check if student already exists
+    $sql = "SELECT * FROM name WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count >= 1)
+        return false;
+    # Add student
+    $sql = "INSERT INTO name (student_id, student_name) VALUES ('$student_id', '$student_name')";
+    $conn->query($sql);
+    $conn->close();
+    return student_get_by_id($student_id);
+};
 function student_delete() {};
 function student_update() {};
 function student_get_by_id($student_id) {
@@ -133,7 +146,11 @@ function student_search($student_id='', $student_name='') {
 
 // Courses
 function course_exists() {};
-function course_add() {};
+function course_add($course_code) {
+    # Add empty course
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "INSERT INTO course (course_code) VALUES ('$course_code')";
+};
 function course_delete() {};
 function course_update() {};
 function course_get_unique_courses() {

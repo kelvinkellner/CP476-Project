@@ -17,12 +17,6 @@ $result = $search->check_for_searches();
 if($result)
     $courses = $result;
 ?>
-<form id="add">
-    <label>Add a new course: </label>
-    <input type="text" name="course_code" placeholder="Course Code">
-    <input type="submit" name="add" value="Add">
-</form>
-<br/>
 <?php $search->show(); ?>
 <br/>
 <table id="course_table">

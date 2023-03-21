@@ -1,6 +1,7 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
 include_once(__DIR__.'/../search.php');
+include_once(__DIR__.'/../changes.php');
 $is_admin = $_SESSION['user']['is_admin'];
 $students = (array_key_exists('cache', $_SESSION) and array_key_exists('student', $_SESSION['cache']))? $_SESSION['cache']['student']: student_get_all();
 $search = new SearchBar(
@@ -11,28 +12,34 @@ $search = new SearchBar(
 $result = $search->check_for_searches();
 if($result)
     $students = $result;
-if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
-    if(isset($_POST['add'])) {
-        if(($_POST['student_id'] !== '') and ($_POST['student_name'] !== '')) {
-            if (!auth_user_add($_POST['student_id'], $_POST['student_name']))
-                echo "<script>alert('Student with that ID already exists!')</script>";
-            else {
+$changes = new ChangeManager(
+    'student',
+    [
+        'add' =>
+        [
+            'fields' => 
+                [
+                    ['name' => 'student_id', 'type' => 'text', 'label' => 'Student ID'],
+                    ['name' => 'student_name', 'type' => 'text', 'label' => 'Student Name'],
+                ],
+            'label' => 'Add a new student: ',
+            'submit_function' => 'student_add',
+            'on_success_function' => function () {
+                global $search;
+                global $students;
                 $search->clear_text_fields();
-                $_SESSION['cache']['user'] = auth_user_get_all();
-                $users = $_SESSION['cache']['user'];
+                $_SESSION['cache']['student'] = student_get_all();
+                $students = $_SESSION['cache']['student'];
+                return $students;
             }
-        }
-        else
-            echo "<script>alert('All fields are required!')</script>";
-    }
-}
+        ]
+    ]
+);
+$result = $changes->check_for_changes();
+if ($result)
+    $students = $result;
 ?>
-<form id="add">
-    <label>Add a new student: </label>
-    <input type="text" name="student_id" placeholder="Student ID">
-    <input type="text" name="student_name" placeholder="Student Name">
-    <input type="submit" name="add" value="Add">
-</form>
+<?php $changes->show_add(); ?>
 <br/>
 <?php $search->show(); ?>
 <table id="students_table">
