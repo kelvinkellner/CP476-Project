@@ -46,5 +46,10 @@ class SearchBar {
         }
         return $result;
     }
+
+    public function clear_text_fields() {
+        foreach ($this->fields as $field => $label)
+            unset($_SESSION["search_".$this->context_name.$field]);
+    }
 }
 ?>

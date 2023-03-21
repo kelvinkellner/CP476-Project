@@ -11,6 +11,21 @@ $search = new SearchBar(
 $result = $search->check_for_searches();
 if($result)
     $students = $result;
+if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
+    if(isset($_POST['add'])) {
+        if(($_POST['student_id'] !== '') and ($_POST['student_name'] !== '')) {
+            if (!auth_user_add($_POST['student_id'], $_POST['student_name']))
+                echo "<script>alert('Student with that ID already exists!')</script>";
+            else {
+                $search->clear_text_fields();
+                $_SESSION['cache']['user'] = auth_user_get_all();
+                $users = $_SESSION['cache']['user'];
+            }
+        }
+        else
+            echo "<script>alert('All fields are required!')</script>";
+    }
+}
 ?>
 <form id="add">
     <label>Add a new student: </label>
