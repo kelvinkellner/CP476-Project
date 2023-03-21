@@ -33,6 +33,36 @@ $changes = new ChangeManager(
                 $users = $_SESSION['cache']['user'];
                 return $users;
             }
+        ],
+        'edit' =>
+        [
+            'fields' => 
+            [
+                ['name' => 'og_user_name'],
+                ['name' => 'og_user_id'],
+                ['name' => 'user_name'],
+                ['name' => 'user_id'],
+                ['name' => 'is_admin', 'type' => 'yes-no']
+            ],
+            'submit_function' => 'auth_user_update',
+            'on_success_function' => function () {
+                $_SESSION['cache']['user'] = auth_user_get_all();
+                echo "<p class='success_message'>User updated successfully!</p><br/>";
+                return $_SESSION['cache']['user'];
+            }
+        ],
+        'delete' =>
+        [
+            'fields' =>
+            [
+                'user_name',
+                'user_id'
+            ],
+            'submit_function' => 'auth_user_delete',
+            'on_success_function' => function () {
+                $_SESSION['cache']['user'] = auth_user_get_all();
+                return $_SESSION['cache']['user'];
+            }
         ]
     ]
 );
@@ -49,21 +79,23 @@ if ($result)
         <th>User Name</th>
         <th>User ID</th>
         <th>Is Admin?</th>
-        <th>Registration Date</th>
+        <th>Last Modified</th>
         <th>Actions</th>
     </tr>
     <?php
         foreach ($users as $user) {
             echo "<tr class=\"row\">";
-            echo "<td>".$user['user_name']."</td>";
-            echo "<td>".$user['user_id']."</td>";
-            echo "<td>".($user['is_admin']? "YES": "NO")."</td>";
-            echo "<td>".$user['reg_date']."</td>";
+            echo "<form id='edit' method='post'>";
+            echo "<input type='hidden' name='user' value='true'>";
+            echo "<input type='hidden' name='og_user_name' value='".$user['user_name']."'>";
+            echo "<input type='hidden' name='og_user_id' value='".$user['user_id']."'>";
+            echo "<td><input name='user_name' size='20' type='text' class='show-input-as-plain-text' value='".$user['user_name']."'></td>";
+            echo "<td><input name='user_id' size='8' type='text' class='show-input-as-plain-text' value='".$user['user_id']."'></td>";
+            echo "<td><input name='is_admin' size='8' type='text' class='show-input-as-plain-text' value='".($user['is_admin']? "YES": "NO")."'></td>";
+            echo "<td>".$user['mod_date']."</td>";
             echo "<td>";
-            echo "<form action='auth.php' method='post'>";
-            echo "<input type='hidden' name='user_id' value='".$user['user_id']."'>";
-            echo "<input type='submit' name='edit' value='Edit'>";
-            echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
+            $changes->show_edit();
+            $changes->show_delete();
             echo "</form>";
             echo "</td>";
             echo "</tr>";

@@ -32,6 +32,33 @@ $changes = new ChangeManager(
                 $students = $_SESSION['cache']['student'];
                 return $students;
             }
+        ],
+        'edit' =>
+        [
+            'fields' => 
+            [
+                ['name' => 'og_student_id'],
+                ['name' => 'student_id'],
+                ['name' => 'student_name']
+            ],
+            'submit_function' => 'student_update',
+            'on_success_function' => function () {
+                $_SESSION['cache']['student'] = student_get_all();
+                echo "<p class='success_message'>Student updated successfully!</p><br/>";
+                return $_SESSION['cache']['student'];
+            }
+        ],
+        'delete' =>
+        [
+            'fields' => 
+            [
+                ['name' => 'student_id']
+            ],
+            'submit_function' => 'student_remove',
+            'on_success_function' => function () {
+                $_SESSION['cache']['student'] = student_get_all();
+                return $_SESSION['cache']['student'];
+            }
         ]
     ]
 );
@@ -51,18 +78,21 @@ if ($result)
     <?php
         foreach ($students as $student) {
             echo "<tr class=\"row\">";
+            echo "<form id='edit' method='post'>";
+            echo "<input type='hidden' name='student' value='true'>";
             if ($is_admin) {
-                echo "<td id=\"student_id\" contentEditable=\"true\">".$student['student_id']."</td>";
-                echo "<td id=\"student_name\" contentEditable=\"true\">".$student['student_name']."</td>";
+                echo "<input type='hidden' name='og_student_id' value='".$student['student_id']."'>";
+                echo "<td><input name='student_id' size='10' type='text' class='show-input-as-plain-text' value='".$student['student_id']."'></td>";
+                echo "<td><input name='student_name' size='20' type='text' class='show-input-as-plain-text' value='".$student['student_name']."'></td>";
                 echo "<td>";
-                echo "<input type='hidden' name='student_id' value='".$student['student_id']."'>";
-                echo "<input type='submit' name='edit' value='Edit'>";
-                echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
+                $changes->show_edit();
+                $changes->show_delete();
                 echo "</td>";
             } else {
                 echo "<td>".$student['student_id']."</td>";
                 echo "<td>".$student['student_name']."</td>";
             }
+            echo "</form>";
             echo "</tr>";
         }
     ?>

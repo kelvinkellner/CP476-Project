@@ -34,21 +34,32 @@ function auth_user_add(string $user_name, string $user_id, int $is_admin = 0) {
     return auth_user_get($user_name, $user_id);
 };
 function auth_user_delete(string $user_name, string $user_id) {
-    # Delete user
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    # Check if user exists
+    $sql = "SELECT * FROM auth WHERE user_name = '$user_name' AND user_id = '$user_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count <= 0)
+        return false;
+    # Delete user
     $sql = "DELETE FROM auth WHERE user_name = '$user_name' AND user_id = '$user_id'";
     $conn->query($sql);
     $conn->close();
+    return true;
 };
-function auth_user_update(string $user_name, string $user_id, int $is_admin) {
-    # Update user's admin status
-    if ($is_admin < 0 || $is_admin > 1)
-        return false;
+function auth_user_update(string $og_user_name, string $og_user_id, string $user_name, string $user_id, int $is_admin) {
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    $sql = "UPDATE auth SET is_admin = '$is_admin' WHERE user_name = '$user_name' AND user_id = '$user_id'";
+    # Check if user exists
+    $sql = "SELECT * FROM auth WHERE user_name = '$og_user_name' AND user_id = '$og_user_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count <= 0)
+        return false;
+    # Update user
+    $sql = "UPDATE auth SET user_name = '$user_name', user_id = '$user_id', is_admin = '$is_admin' WHERE user_name = '$og_user_name' AND user_id = '$og_user_id'";
     $conn->query($sql);
     $conn->close();
-    return true;
+    return auth_user_get($user_name, $user_id);
 };
 function auth_user_get(string $user_name, string $user_id): array {
     # Get user's info
@@ -106,8 +117,34 @@ function student_add($student_id, $student_name) {
     $conn->close();
     return student_get_by_id($student_id);
 };
-function student_delete() {};
-function student_update() {};
+function student_delete($student_id) {
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    # Check if student exists
+    $sql = "SELECT * FROM name WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count <= 0)
+        return false;
+    # Delete student
+    $sql = "DELETE FROM name WHERE student_id = '$student_id'";
+    $conn->query($sql);
+    $conn->close();
+    return true;
+};
+function student_update($og_student_id, $student_id, $student_name) {
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    # Check if student already exists
+    $sql = "SELECT * FROM name WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count <= 0)
+        return false;
+    # Update student
+    $sql = "UPDATE name SET student_id = '$student_id', student_name = '$student_name' WHERE student_id = '$og_student_id'";
+    $conn->query($sql);
+    $conn->close();
+    return student_get_by_id($student_id);
+};
 function student_get_by_id($student_id) {
     # Get student by id
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
