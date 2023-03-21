@@ -144,4 +144,10 @@ function init_db(): bool {
     return false;
 };
 
+function reset_db(): void {
+    $conn = connect_to_mysql();
+    $conn->exec(SQL_DROP_ALL_TABLES);
+    $conn = null;
+};
+
 ?>
