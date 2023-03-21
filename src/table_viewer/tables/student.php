@@ -1,7 +1,16 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
+include_once(__DIR__.'/../search.php');
 $is_admin = $_SESSION['user']['is_admin'];
 $students = (array_key_exists('cache', $_SESSION) and array_key_exists('student', $_SESSION['cache']))? $_SESSION['cache']['student']: student_get_all();
+$search = new SearchBar(
+    ['student_id' => 'Student ID', 'student_name' => 'Student Name'],
+    'student',
+    'student_search'
+);
+$result = $search->check_for_searches();
+if($result)
+    $students = $result;
 ?>
 <form id="add">
     <label>Add a new student: </label>
@@ -10,14 +19,7 @@ $students = (array_key_exists('cache', $_SESSION) and array_key_exists('student'
     <input type="submit" name="add" value="Add">
 </form>
 <br/>
-<form id="search">
-    <label><strong>Search</strong></label><br/>
-    <input type="text" name="student_id" placeholder="Student ID">
-    <input type="text" name="student_name" placeholder="Student Name">
-    <input type="submit" name="search" value="Search">
-    <input type="submit" name="clear" value="Clear Filters">
-</form>
-<br/>
+<?php $search->show(); ?>
 <table id="students_table">
     <tr>
         <th>Student ID</th>

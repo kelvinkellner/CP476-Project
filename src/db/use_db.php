@@ -171,6 +171,18 @@ function course_get_courses_by_student_id($student_id) {
 };
 function course_get_students_by_course_code() {};
 function course_get_course_by_student_id_and_course_code() {};
+function course_search_unique_courses($course_code='') {
+    if ($course_code == '')
+        return course_get_unique_courses();
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT course_code, COUNT(*) AS student_count FROM course WHERE course_code LIKE '%$course_code%' GROUP BY course_code";
+    $result = $conn->query($sql);
+    $courses = [];
+    while ($row = $result->fetch_assoc())
+        array_push($courses, $row);
+    $conn->close();
+    return $courses;
+};
 
 // Grades
 function grade_add() {};
@@ -191,6 +203,19 @@ function grade_get_all() {
 function grade_get_grades_by_student_id() {};
 function grade_get_grades_by_course_code() {};
 function grade_get_grades_by_student_id_and_course_code() {};
+function grade_search($student_id='', $student_name='', $course_code='') {
+    # Get matching grades
+    if ($student_id == '' && $student_name == '' && $course_code == '')
+        return grade_get_all();
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM final_grade WHERE student_id LIKE '%$student_id%' AND student_name LIKE '%$student_name%' AND course_code LIKE '%$course_code%'";
+    $result = $conn->query($sql);
+    $grades = [];
+    while ($row = $result->fetch_assoc())
+        array_push($grades, $row);
+    $conn->close();
+    return $grades;
+};
 
 ?>
 

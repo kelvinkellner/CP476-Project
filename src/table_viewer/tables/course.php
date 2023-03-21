@@ -1,7 +1,21 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
+include_once(__DIR__.'/../search.php');
 $is_admin = $_SESSION['user']['is_admin'];
-$courses = course_get_unique_courses();
+if(array_key_exists('cache', $_SESSION) and array_key_exists('course', $_SESSION['cache']))
+    $courses = $_SESSION['cache']['course'];
+else {
+    $courses = course_get_unique_courses();
+    $_SESSION['cache']['course'] = $courses;
+}
+$search = new SearchBar(
+    ['course_code' => 'Course Code'],
+    'course',
+    'course_search_unique_courses'
+);
+$result = $search->check_for_searches();
+if($result)
+    $courses = $result;
 ?>
 <form id="add">
     <label>Add a new course: </label>
@@ -9,12 +23,7 @@ $courses = course_get_unique_courses();
     <input type="submit" name="add" value="Add">
 </form>
 <br/>
-<form id="search">
-    <label><strong>Search</strong></label><br/>
-    <input type="text" name="course_code" placeholder="Course Code">
-    <input type="submit" name="search" value="Search">
-    <input type="submit" name="clear" value="Clear Filters">
-</form>
+<?php $search->show(); ?>
 <br/>
 <table id="course_table">
     <tr>

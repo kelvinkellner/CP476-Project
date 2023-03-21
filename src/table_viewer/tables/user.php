@@ -9,10 +9,8 @@ $search = new SearchBar(
     'auth_user_search'
 );
 $result = $search->check_for_searches();
-if($result) {
+if($result)
     $users = $result;
-    $_SESSION['cache']['user'] = $users;
-}
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
     if(isset($_POST['add'])) {

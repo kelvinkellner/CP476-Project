@@ -16,7 +16,7 @@ class SearchBar {
         echo "<label><strong>Search</strong></label><br/>";
         foreach ($this->fields as $field => $label) {
             echo "<input type='text' name='$field' placeholder='$label' value=";
-            echo array_key_exists("search_".$field, $_SESSION)? $_SESSION["search_".$field]: '';
+            echo array_key_exists("search_".$this->context_name.$field, $_SESSION)? $_SESSION["search_".$this->context_name.$field]: '';
             echo ">";
         }
         echo "<input type='submit' name='search' value='Search'>";
@@ -30,7 +30,7 @@ class SearchBar {
             if(isset($_POST['search'])) {
                 $args = [];
                 foreach ($this->fields as $field => $label) {
-                    $_SESSION["search_".$field] = $_POST[$field];
+                    $_SESSION["search_".$this->context_name.$field] = $_POST[$field];
                     $args[$field] = $_POST[$field];
                 }
                 $result = call_user_func_array($this->search, $args);
@@ -38,7 +38,7 @@ class SearchBar {
             if(isset($_POST['clear'])) {
                 $args = [];
                 foreach ($this->fields as $field => $label) {
-                    unset($_SESSION["search_".$field]);
+                    unset($_SESSION["search_".$this->context_name.$field]);
                     $args[$field] = '';
                 }
                 $result = call_user_func_array($this->search, $args);
