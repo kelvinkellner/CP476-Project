@@ -1,9 +1,18 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
+include_once(__DIR__.'/../search.php');
 $is_admin = $_SESSION['user']['is_admin'];
 $users = (array_key_exists('cache', $_SESSION) and array_key_exists('user', $_SESSION['cache']))? $_SESSION['cache']['user']: auth_user_get_all();
-$search_user_name = array_key_exists('search_user_name', $_SESSION)? $_SESSION['search_user_name']: '';
-$search_user_id = array_key_exists('search_user_id', $_SESSION)? $_SESSION['search_user_id']: '';
+$search = new SearchBar(
+    ['user_name' => 'User Name', 'user_id' => 'User ID'],
+    'user',
+    'auth_user_search'
+);
+$result = $search->check_for_searches();
+if($result) {
+    $users = $result;
+    $_SESSION['cache']['user'] = $users;
+}
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
     if(isset($_POST['add'])) {
@@ -20,16 +29,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
         else
             echo "<script>alert('All fields are required!')</script>";
     }
-    if(isset($_POST['search'])) {
-        $_SESSION['search_user_name'] = $_POST['user_name'];
-        $_SESSION['search_user_id'] = $_POST['user_id'];
-        $users = auth_user_search($_POST['user_name'], $_POST['user_id']);
-    }
-    if(isset($_POST['clear'])) {
-        unset($_SESSION['search_user_name']);
-        unset($_SESSION['search_user_id']);
-        $_SESSION['cache']['user'] = auth_user_get_all();
-    }
 }
 ?>
 <form id="add" method="post">
@@ -41,14 +40,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle actions
     <input type="submit" name="add" value="Add">
 </form>
 <br/>
-<form id="search" method="post">
-    <input type="hidden" name="user" value="true">
-    <label><strong>Search</strong></label><br/>
-    <input type="text" name="user_name" placeholder="User Name" value=<?php echo array_key_exists('search_user_name', $_SESSION)? $_SESSION['search_user_name']: '' ?>>
-    <input type="text" name="user_id" placeholder="User ID" value=<?php echo array_key_exists('search_user_id', $_SESSION)? $_SESSION['search_user_id']: '' ?>>
-    <input type="submit" name="search" value="Search">
-    <input type="submit" name="clear" value="Clear Filters">
-</form>
+<?php $search->show(); ?>
 <br/>
 <table id="user_table">
     <tr>
