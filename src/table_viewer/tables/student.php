@@ -52,9 +52,9 @@ $changes = new ChangeManager(
         [
             'fields' => 
             [
-                ['name' => 'student_id']
+                'student_id'
             ],
-            'submit_function' => 'student_remove',
+            'submit_function' => 'student_delete',
             'on_success_function' => function () {
                 $_SESSION['cache']['student'] = student_get_all();
                 return $_SESSION['cache']['student'];
