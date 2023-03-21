@@ -12,62 +12,68 @@ $search = new SearchBar(
 $result = $search->check_for_searches();
 if($result)
     $students = $result;
-$changes = new ChangeManager(
-    'student',
-    [
-        'add' =>
+if($is_admin) {
+    $changes = new ChangeManager(
+        'student',
         [
-            'fields' => 
+            'add' =>
+            [
+                'fields' => 
+                    [
+                        ['name' => 'student_id', 'type' => 'text', 'label' => 'Student ID'],
+                        ['name' => 'student_name', 'type' => 'text', 'label' => 'Student Name'],
+                    ],
+                'label' => 'Add a new student: ',
+                'submit_function' => 'student_add',
+                'on_success_function' => function () {
+                    global $search;
+                    global $students;
+                    $search->clear_text_fields();
+                    $_SESSION['cache']['student'] = student_get_all();
+                    $students = $_SESSION['cache']['student'];
+                    return $students;
+                }
+            ],
+            'edit' =>
+            [
+                'fields' => 
                 [
-                    ['name' => 'student_id', 'type' => 'text', 'label' => 'Student ID'],
-                    ['name' => 'student_name', 'type' => 'text', 'label' => 'Student Name'],
+                    ['name' => 'og_student_id'],
+                    ['name' => 'student_id'],
+                    ['name' => 'student_name']
                 ],
-            'label' => 'Add a new student: ',
-            'submit_function' => 'student_add',
-            'on_success_function' => function () {
-                global $search;
-                global $students;
-                $search->clear_text_fields();
-                $_SESSION['cache']['student'] = student_get_all();
-                $students = $_SESSION['cache']['student'];
-                return $students;
-            }
-        ],
-        'edit' =>
-        [
-            'fields' => 
-            [
-                ['name' => 'og_student_id'],
-                ['name' => 'student_id'],
-                ['name' => 'student_name']
+                'submit_function' => 'student_update',
+                'on_success_function' => function () {
+                    $_SESSION['cache']['student'] = student_get_all();
+                    echo "<p class='success_message'>Student updated successfully!</p><br/>";
+                    return $_SESSION['cache']['student'];
+                }
             ],
-            'submit_function' => 'student_update',
-            'on_success_function' => function () {
-                $_SESSION['cache']['student'] = student_get_all();
-                echo "<p class='success_message'>Student updated successfully!</p><br/>";
-                return $_SESSION['cache']['student'];
-            }
-        ],
-        'delete' =>
-        [
-            'fields' => 
+            'delete' =>
             [
-                'student_id'
-            ],
-            'submit_function' => 'student_delete',
-            'on_success_function' => function () {
-                $_SESSION['cache']['student'] = student_get_all();
-                return $_SESSION['cache']['student'];
-            }
+                'fields' => 
+                [
+                    'student_id'
+                ],
+                'submit_function' => 'student_delete',
+                'on_success_function' => function () {
+                    $_SESSION['cache']['student'] = student_get_all();
+                    return $_SESSION['cache']['student'];
+                }
+            ]
         ]
-    ]
-);
-$result = $changes->check_for_changes();
-if ($result)
-    $students = $result;
+    );
+    $result = $changes->check_for_changes();
+    if ($result)
+        $students = $result;
+}
 ?>
-<?php $changes->show_add(); ?>
-<br/>
+<?php
+if($is_admin) {
+    $changes->show_add();
+    echo "<br/>";
+}
+?>
 <?php $search->show(); ?>
 <table id="students_table">
     <tr>
