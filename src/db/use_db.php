@@ -19,10 +19,16 @@ function auth_login(string $user_name, string $user_id): bool {
     }
     return false;
 };
-function auth_user_add(string $user_name, string $user_id) {
-    # Add user
+function auth_user_add(string $user_name, string $user_id, int $is_admin = 0) {
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    $sql = "INSERT INTO auth (user_name, user_id, is_admin) VALUES ('$user_name', '$user_id', 0)";
+    # Check if user already exists
+    $sql = "SELECT * FROM auth WHERE user_id = '$user_id'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    if ($count >= 1)
+        return false;
+    # Add user
+    $sql = "INSERT INTO auth (user_name, user_id, is_admin) VALUES ('$user_name', '$user_id', '$is_admin')";
     $conn->query($sql);
     $conn->close();
     return auth_user_get($user_name, $user_id);
@@ -71,6 +77,18 @@ function auth_logout() {
     # Logout
     unset($_SESSION['user']);
 };
+function auth_user_search($user_name='', $user_id='') {
+    if ($user_name == '' && $user_id == '')
+        return auth_user_get_all();
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM auth WHERE user_name LIKE '%$user_name%' AND user_id LIKE '%$user_id%'";
+    $result = $conn->query($sql);
+    $users = [];
+    while ($row = $result->fetch_assoc())
+        array_push($users, $row);
+    $conn->close();
+    return $users;
+};
 
 // Students
 function student_exists() {};
@@ -93,6 +111,18 @@ function student_get_all() {
     # Get all students
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
     $sql = "SELECT * FROM name";
+    $result = $conn->query($sql);
+    $students = [];
+    while ($row = $result->fetch_assoc())
+        array_push($students, $row);
+    $conn->close();
+    return $students;
+};
+function student_search($student_id='', $student_name='') {
+    if ($student_id == '' && $student_name == '')
+        return student_get_all();
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM name WHERE student_id LIKE '%$student_id%' AND student_name LIKE '%$student_name%'";
     $result = $conn->query($sql);
     $students = [];
     while ($row = $result->fetch_assoc())
