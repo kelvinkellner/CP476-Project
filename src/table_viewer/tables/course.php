@@ -23,23 +23,14 @@ if($result)
     <tr>
         <th>Course Code</th>
         <th># Students Enrolled</th>
-        <?php if ($is_admin) echo "<th>Actions</th>"; ?>
     </tr>
     <?php
         foreach ($courses as $course) {
             echo "<tr class=\"row\">";
             echo "<td>".$course['course_code']."</td>";
             echo "<td>".$course['student_count']."</td>";
-            if ($is_admin) {
-                echo "<td>";
-                echo "<form action='course.php' method='post'>";
-                echo "<input type='hidden' name='course_code' value='".$course['course_code']."'>";
-                echo "<input type='submit' name='edit' value='Edit'>";
-                echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
-                echo "</form>";
-                echo "</td>";
-            }
             echo "</tr>";
         }
     ?>
 </table>
+<p><strong>Note:</strong> Courses are not directly editable. To modify the content of this page, make changes to Grades and they will be automatically reflected here.</p>
