@@ -40,8 +40,9 @@ CONST SQL_CREATE_AUTH_TABLE = "CREATE TABLE IF NOT EXISTS auth (
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_name, user_id)
 )";
-CONST SQL_DROP_FINAL_GRADES = "DROP TABLE IF EXISTS final_grade";
+CONST SQL_TABLE_EXISTS = "SELECT 1 FROM information_schema.tables WHERE table_schema = database() AND table_name = ?";
 CONST SQL_DROP_ALL_TABLES = "DROP TABLE IF EXISTS name, course, final_grade, auth";
+CONST SQL_DROP_FINAL_GRADES = "DROP TABLE IF EXISTS final_grade";
 CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES (?, ?, ?)";
 CONST SQL_INSERT_DEFAULT_NAMES = "INSERT INTO name (student_id, student_name) VALUES (?, ?)";
 CONST SQL_INSERT_DEFAULT_COURSES = "INSERT INTO course (student_id, course_code, grade_test_1, grade_test_2, grade_test_3, grade_exam) VALUES (?, ?, ?, ?, ?, ?)";
@@ -62,32 +63,58 @@ function connect_to_mysql(): PDO {
 };
 
 function create_all_tables(PDO $conn) {
+    $tables_created = [];
     try {
         // Initialize all DB tables
-        $conn->exec(SQL_CREATE_NAME_TABLE);
-        $conn->exec(SQL_CREATE_COURSE_TABLE);
-        $conn->exec(SQL_CREATE_FINAL_GRADE_TABLE);
-        $conn->exec(SQL_CREATE_AUTH_TABLE);
+        $sql_exists =  $conn->prepare(SQL_TABLE_EXISTS);
+        $queue = [
+            'name' => SQL_CREATE_NAME_TABLE,
+            'course' => SQL_CREATE_COURSE_TABLE,
+            'final_grade' => SQL_CREATE_FINAL_GRADE_TABLE,
+            'auth' => SQL_CREATE_AUTH_TABLE
+        ];
+        // Create each table if it doesn't exist
+        foreach ($queue as $table_name => $sql_create) {
+            $sql_exists->execute([$table_name]);
+            $exists = (bool)$sql_exists->fetchColumn();
+            if(!$exists) {
+                $conn->exec($sql_create);
+                $tables_created[$table_name] = true;
+            }
+        }
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
+        $tables_created['auth'] = true;
+        // return [];
     }
+    return $tables_created;
 };
 
-function fill_default_values(PDO $conn) {
+function fill_default_values(PDO $conn, array $tables_created) {
     try {
-        // Fill database with all default values
-        $default_auth_users = parse_file(__DIR__.'/defaults/authFile.txt');
-        $default_courses = parse_file(__DIR__.'/defaults/courseFile.txt');
-        $default_names = parse_file(__DIR__.'/defaults/nameFile.txt');
-        $stmt_user = $conn->prepare(SQL_INSERT_DEFAULT_AUTH_USERS);
-        $stmt_course = $conn->prepare(SQL_INSERT_DEFAULT_COURSES);
-        $stmt_name = $conn->prepare(SQL_INSERT_DEFAULT_NAMES);
-        foreach($default_auth_users as $user)
-            $stmt_user->execute($user);
-        foreach($default_courses as $course)
-            $stmt_course->execute($course);
-        foreach($default_names as $name)
-            $stmt_name->execute($name);
+        // Fill database with default values if tables were just created
+        if (array_key_exists('name', $tables_created)) {
+            $default_names = parse_file(__DIR__.'/defaults/nameFile.txt');
+            $stmt = $conn->prepare(SQL_INSERT_DEFAULT_NAMES);
+            foreach($default_names as $name)
+                $stmt->execute($name);
+        }
+        if (array_key_exists('course', $tables_created)) {
+            $default_courses = parse_file(__DIR__.'/defaults/courseFile.txt');
+            $stmt = $conn->prepare(SQL_INSERT_DEFAULT_COURSES);
+            foreach($default_courses as $course)
+                $stmt->execute($course);
+        }
+        if (array_key_exists('auth', $tables_created)) {
+            $default_auth_users = parse_file(__DIR__.'/defaults/authFile.txt');
+            $stmt = $conn->prepare(SQL_INSERT_DEFAULT_AUTH_USERS);
+            foreach($default_auth_users as $user)
+                $stmt->execute($user);
+        }
+        // Re-calculate final grades
+        $conn->exec(SQL_DROP_FINAL_GRADES);
+        $conn->exec(SQL_CREATE_FINAL_GRADE_TABLE);
+        populate_final_grades($conn);
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
@@ -107,10 +134,10 @@ function init_db(): bool {
     // Create database, after successful connection create tables
     if ($conn->exec(SQL_CREATE_DB)) {
         // echo "Database created successfully"; // TODO: remove or replace at some point
-        $conn->exec(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
-        create_all_tables($conn);
-        fill_default_values($conn);
-        populate_final_grades($conn);
+        // $conn->exec(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
+        $tables_created = create_all_tables($conn);
+        if(!empty($tables_created))
+            fill_default_values($conn, $tables_created);
         $conn = null;
         return true;
     }
