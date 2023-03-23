@@ -133,8 +133,6 @@ function init_db(): bool {
     $conn = connect_to_mysql();
     // Create database, after successful connection create tables
     if ($conn->exec(SQL_CREATE_DB)) {
-        // echo "Database created successfully"; // TODO: remove or replace at some point
-        // $conn->exec(SQL_DROP_ALL_TABLES); // TODO: remove when finished testing
         $tables_created = create_all_tables($conn);
         if(!empty($tables_created))
             fill_default_values($conn, $tables_created);
