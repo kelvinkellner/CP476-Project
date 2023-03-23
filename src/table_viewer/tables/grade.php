@@ -1,6 +1,7 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
 include_once(__DIR__.'/../search.php');
+include_once(__DIR__.'/../changes.php');
 $is_admin = $_SESSION['user']['is_admin'];
 if(array_key_exists('cache', $_SESSION) and array_key_exists('grade_course', $_SESSION['cache']))
     $courses = $_SESSION['cache']['grade_course'];
@@ -25,18 +26,100 @@ if($result)
 $course_grade_lookup = [];
 foreach ($courses as $row)
     $course_grade_lookup[$row['student_id']][$row['course_code']] = $row;
+if($is_admin) {
+    $changes = new ChangeManager(
+        'grade',
+        [
+            'add' =>
+            [
+                'fields' => 
+                    [
+                        ['name' => 'student_id', 'type' => 'text', 'label' => 'Student ID'],
+                        ['name' => 'student_name', 'type' => 'text', 'label' => 'Student Name'],
+                        ['name' => 'course_code', 'type' => 'text', 'label' => 'Course Code'],
+                        ['name' => 'grade_test_1', 'type' => 'text', 'label' => 'Test 1'],
+                        ['name' => 'grade_test_2', 'type' => 'text', 'label' => 'Test 2'],
+                        ['name' => 'grade_test_3', 'type' => 'text', 'label' => 'Test 3'],
+                        ['name' => 'grade_exam', 'type' => 'text', 'label' => 'Final Exam'],
+                    ],
+                'label' => 'Add a new grade entry: ',
+                'submit_function' => 'grade_add_entry',
+                'on_success_function' => function () {
+                    global $search;
+                    global $courses;
+                    global $student_grades;
+                    global $course_grade_lookup;
+                    $search->clear_text_fields();
+                    $_SESSION['cache']['grade_course'] = course_get_all();
+                    $courses = $_SESSION['cache']['grade_course'];
+                    $_SESSION['cache']['grade'] = grade_get_all();
+                    $student_grades = $_SESSION['cache']['grade'];
+                    $course_grade_lookup = [];
+                    foreach ($courses as $row)
+                        $course_grade_lookup[$row['student_id']][$row['course_code']] = $row;
+                    return $student_grades;
+                }
+            ],
+            'edit' =>
+            [
+                'fields' => 
+                [
+                    ['name' => 'og_student_id'],
+                    ['name' => 'og_course_code'],
+                    ['name' => 'student_id'],
+                    ['name' => 'student_name'],
+                    ['name' => 'course_code'],
+                    ['name' => 'grade_test_1'],
+                    ['name' => 'grade_test_2'],
+                    ['name' => 'grade_test_3'],
+                    ['name' => 'grade_exam']
+                ],
+                'submit_function' => 'grade_update_entry',
+                'on_success_function' => function () {
+                    global $courses;
+                    global $student_grades;
+                    global $course_grade_lookup;
+                    $_SESSION['cache']['grade_course'] = course_get_all();
+                    $courses = $_SESSION['cache']['grade_course'];
+                    $_SESSION['cache']['grade'] = grade_get_all();
+                    $student_grades = $_SESSION['cache']['grade'];
+                    $course_grade_lookup = [];
+                    foreach ($courses as $row)
+                        $course_grade_lookup[$row['student_id']][$row['course_code']] = $row;
+                    echo "<p class='success_message'>Entry updated successfully!</p><br/>";
+                    return $student_grades;
+                }
+            ],
+            'delete' =>
+            [
+                'fields' => 
+                [
+                    'student_id',
+                    'course_code'
+                ],
+                'submit_function' => 'grade_delete_entry',
+                'on_success_function' => function () {
+                    global $courses;
+                    global $student_grades;
+                    global $course_grade_lookup;
+                    $_SESSION['cache']['grade_course'] = course_get_all();
+                    $courses = $_SESSION['cache']['grade_course'];
+                    $_SESSION['cache']['grade'] = grade_get_all();
+                    $student_grades = $_SESSION['cache']['grade'];
+                    $course_grade_lookup = [];
+                    foreach ($courses as $row)
+                        $course_grade_lookup[$row['student_id']][$row['course_code']] = $row;
+                    return $student_grades;
+                }
+            ]
+        ]
+    );
+    $result = $changes->check_for_changes();
+    if ($result)
+        $students = $result;
+}
 ?>
-<form id="add">
-    <label>Add a new grade entry: </label>
-    <input type="text" name="student_id" placeholder="Student ID">
-    <input type="text" name="student_name" placeholder="Student Name">
-    <input type="text" name="course_code" placeholder="Course Code">
-    <input type="text" name="grade_test_1" placeholder="Test 1">
-    <input type="text" name="grade_test_2" placeholder="Test 2">
-    <input type="text" name="grade_test_3" placeholder="Test 3">
-    <input type="text" name="grade_exam" placeholder="Final Exam">
-    <input type="submit" name="add" value="Add">
-</form>
+<?php if ($is_admin) $changes->show_add(); ?>
 <br/>
 <?php $search->show(); ?>
 <br/>
@@ -55,24 +138,37 @@ foreach ($courses as $row)
     <?php
         foreach ($student_grades as $row) {
             echo "<tr class=\"row\">";
-            echo "<td>".$row['student_id']."</td>";
-            echo "<td>".$row['student_name']."</td>";
-            echo "<td>".$row['course_code']."</td>";
-            echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_1']."</td>";
-            echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_2']."</td>";
-            echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_3']."</td>";
-            echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_exam']."</td>";
-            echo "<td>".$row['grade_final']."</td>";
+            echo "<form id='changes' method='post'>";
+            echo "<input type='hidden' name='grade' value='true'>";
             if ($is_admin) {
-                echo "<td>";
-                echo "<form action='student.php' method='post'>";
+                echo "<input type='hidden' name='og_student_id' value='".$row['student_id']."'>";
+                echo "<input type='hidden' name='og_course_code' value='".$row['course_code']."'>";
                 echo "<input type='hidden' name='student_id' value='".$row['student_id']."'>";
+                echo "<input type='hidden' name='student_name' value='".$row['student_name']."'>";
                 echo "<input type='hidden' name='course_code' value='".$row['course_code']."'>";
-                echo "<input type='submit' name='edit' value='Edit'>";
-                echo "<button class=\"delete\" onclick=\"(node => node.remove())(this.closest('.row'))\">Delete</button>";
-                echo "</form>";
+                echo "<td>".$row['student_id']."</td>";
+                echo "<td>".$row['student_name']."</td>";
+                echo "<td><input name='course_code' size='8' type='text' class='show-input-as-plain-text' value='".$row['course_code']."'></td>";
+                echo "<td><input name='grade_test_1' size='8' type='text' class='show-input-as-plain-text' value='".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_1']."'></td>";
+                echo "<td><input name='grade_test_2' size='8' type='text' class='show-input-as-plain-text' value='".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_2']."'></td>";
+                echo "<td><input name='grade_test_3' size='8' type='text' class='show-input-as-plain-text' value='".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_3']."'></td>";
+                echo "<td><input name='grade_exam' size='8' type='text' class='show-input-as-plain-text' value='".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_exam']."'></td>";
+                echo "<td>".$row['grade_final']."</td>";
+                echo "<td>";
+                $changes->show_edit();
+                $changes->show_delete();
                 echo "</td>";
+            } else {
+                echo "<td>".$row['student_id']."</td>";
+                echo "<td>".$row['student_name']."</td>";
+                echo "<td>".$row['course_code']."</td>";
+                echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_1']."</td>";
+                echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_2']."</td>";
+                echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_test_3']."</td>";
+                echo "<td>".$course_grade_lookup[$row['student_id']][$row['course_code']]['grade_exam']."</td>";
+                echo "<td>".$row['grade_final']."</td>";
             }
+            echo "</form>";
             echo "</tr>";
         }
     ?>

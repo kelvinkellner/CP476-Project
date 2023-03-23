@@ -84,7 +84,7 @@ if($is_admin) {
     <?php
         foreach ($students as $student) {
             echo "<tr class=\"row\">";
-            echo "<form id='edit' method='post'>";
+            echo "<form id='changes' method='post'>";
             echo "<input type='hidden' name='student' value='true'>";
             if ($is_admin) {
                 echo "<input type='hidden' name='og_student_id' value='".$student['student_id']."'>";

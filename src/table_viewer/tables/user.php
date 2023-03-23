@@ -85,7 +85,7 @@ if ($result)
     <?php
         foreach ($users as $user) {
             echo "<tr class=\"row\">";
-            echo "<form id='edit' method='post'>";
+            echo "<form id='changes' method='post'>";
             echo "<input type='hidden' name='user' value='true'>";
             echo "<input type='hidden' name='og_user_name' value='".$user['user_name']."'>";
             echo "<input type='hidden' name='og_user_id' value='".$user['user_id']."'>";

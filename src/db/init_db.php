@@ -42,10 +42,10 @@ CONST SQL_CREATE_AUTH_TABLE = "CREATE TABLE IF NOT EXISTS auth (
 )";
 CONST SQL_TABLE_EXISTS = "SELECT 1 FROM information_schema.tables WHERE table_schema = database() AND table_name = ?";
 CONST SQL_DROP_ALL_TABLES = "DROP TABLE IF EXISTS name, course, final_grade, auth";
-CONST SQL_DROP_FINAL_GRADES = "DROP TABLE IF EXISTS final_grade";
 CONST SQL_INSERT_DEFAULT_AUTH_USERS = "INSERT INTO auth (user_name, user_id, is_admin) VALUES (?, ?, ?)";
 CONST SQL_INSERT_DEFAULT_NAMES = "INSERT INTO name (student_id, student_name) VALUES (?, ?)";
 CONST SQL_INSERT_DEFAULT_COURSES = "INSERT INTO course (student_id, course_code, grade_test_1, grade_test_2, grade_test_3, grade_exam) VALUES (?, ?, ?, ?, ?, ?)";
+CONST SQL_CLEAR_FINAL_GRADES = "DELETE FROM final_grade";
 CONST SQL_POPULATE_FINAL_GRADES = "INSERT INTO final_grade (student_id, student_name, course_code, grade_final) SELECT course.student_id, name.student_name, course.course_code, (course.grade_test_1 + course.grade_test_2 + course.grade_test_3 + course.grade_exam) / 4 AS grade_final FROM course INNER JOIN name ON course.student_id = name.student_id";
 
 function connect_to_mysql(): PDO {
@@ -111,23 +111,23 @@ function fill_default_values(PDO $conn, array $tables_created) {
             foreach($default_auth_users as $user)
                 $stmt->execute($user);
         }
-        // Re-calculate final grades
-        $conn->exec(SQL_DROP_FINAL_GRADES);
-        $conn->exec(SQL_CREATE_FINAL_GRADE_TABLE);
-        populate_final_grades($conn);
+        # Calculate final grades
+        refresh_final_grades($conn);
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
 }
 
-function populate_final_grades(PDO $conn) {
+function refresh_final_grades(PDO $conn) {
     try {
-        // Populate final grade table for all students per course
+        // Delete old final grades
+        $conn->exec(SQL_CLEAR_FINAL_GRADES);
+        // Re-calcute final grades and populate table for all students per course
         $conn->exec(SQL_POPULATE_FINAL_GRADES);
     } catch (Exception $e) {
         echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
-};
+}
 
 function init_db(): bool {
     $conn = connect_to_mysql();

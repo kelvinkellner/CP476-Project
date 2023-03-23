@@ -49,11 +49,14 @@ function auth_user_delete(string $user_name, string $user_id) {
 };
 function auth_user_update(string $og_user_name, string $og_user_id, string $user_name, string $user_id, int $is_admin) {
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    # Check if user exists
+    # Check that user exists
     $sql = "SELECT * FROM auth WHERE user_name = '$og_user_name' AND user_id = '$og_user_id'";
     $result = $conn->query($sql);
     $count = $result->num_rows;
     if ($count <= 0)
+        return false;
+    # Check if user ID is already taken
+    if($og_user_id != $user_id && auth_user_get($user_name, $user_id))
         return false;
     # Update user
     $sql = "UPDATE auth SET user_name = '$user_name', user_id = '$user_id', is_admin = '$is_admin' WHERE user_name = '$og_user_name' AND user_id = '$og_user_id'";
@@ -133,11 +136,14 @@ function student_delete($student_id) {
 };
 function student_update($og_student_id, $student_id, $student_name) {
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    # Check if student already exists
+    # Check that student exists
     $sql = "SELECT * FROM name WHERE student_id = '$student_id'";
     $result = $conn->query($sql);
     $count = $result->num_rows;
     if ($count <= 0)
+        return false;
+    # Check if student ID is already taken
+    if($og_student_id != $student_id && student_get_by_id($student_id))
         return false;
     # Update student
     $sql = "UPDATE name SET student_id = '$student_id', student_name = '$student_name' WHERE student_id = '$og_student_id'";
@@ -183,13 +189,7 @@ function student_search($student_id='', $student_name='') {
 
 // Courses
 function course_exists() {};
-function course_add($course_code) {
-    # Add empty course
-    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    $sql = "INSERT INTO course (course_code) VALUES ('$course_code')";
-};
 function course_delete() {};
-function course_update() {};
 function course_get_unique_courses() {
     # Get student enrollment count
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
@@ -224,7 +224,18 @@ function course_get_courses_by_student_id($student_id) {
     return $courses;
 };
 function course_get_students_by_course_code() {};
-function course_get_course_by_student_id_and_course_code() {};
+function course_get_course_by_student_id_and_course_code($student_id, $course_code) {
+    # Get course by student id and course code
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM course WHERE student_id = '$student_id' AND course_code = '$course_code'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    $course = $result->fetch_assoc();
+    $conn->close();
+    if ($count == 1)
+        return $course;
+    return null;
+};
 function course_search_unique_courses($course_code='') {
     if ($course_code == '')
         return course_get_unique_courses();
@@ -237,12 +248,22 @@ function course_search_unique_courses($course_code='') {
     $conn->close();
     return $courses;
 };
+function course_update_entry($og_student_id, $og_course_code, $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam) {
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    # Check that entry exists
+    if(!course_get_course_by_student_id_and_course_code($og_student_id, $og_course_code))
+        return null;
+    # Check if duplicate enrolment is already present
+    if(($og_student_id != $student_id || $og_course_code != $course_code) && course_get_course_by_student_id_and_course_code($student_id, $course_code))
+        return false;
+    # Update course entry
+    $sql = "UPDATE course SET student_id = '$student_id', course_code = '$course_code', grade_test_1 = '$grade_test_1', grade_test_2 = '$grade_test_2', grade_test_3 = '$grade_test_3', grade_exam = '$grade_exam' WHERE student_id = '$og_student_id' AND course_code = '$og_course_code'";
+    $course = $conn->query($sql);
+    $conn->close();
+    return $course;
+};
 
 // Grades
-function grade_add() {};
-function grade_delete() {};
-function grade_update() {};
-function grade_get() {};
 function grade_get_all() {
     # Get all final grades
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
@@ -254,9 +275,17 @@ function grade_get_all() {
     $conn->close();
     return $grades;
 };
-function grade_get_grades_by_student_id() {};
-function grade_get_grades_by_course_code() {};
-function grade_get_grades_by_student_id_and_course_code() {};
+function grade_get_grades_by_student_id($student_id) {
+    # Get grades by student id
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM final_grade WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+    $grades = [];
+    while ($row = $result->fetch_assoc())
+        array_push($grades, $row);
+    $conn->close();
+    return $grades;
+};
 function grade_search($student_id='', $student_name='', $course_code='') {
     # Get matching grades
     if ($student_id == '' && $student_name == '' && $course_code == '')
@@ -269,6 +298,58 @@ function grade_search($student_id='', $student_name='', $course_code='') {
         array_push($grades, $row);
     $conn->close();
     return $grades;
+};
+function grade_refresh_final_grades() {
+    # Clear all grades
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "DELETE FROM final_grade";
+    $conn->query($sql);
+    # Re-calculate all final grades
+    $sql = "INSERT INTO final_grade (student_id, student_name, course_code, grade_final) SELECT course.student_id, name.student_name, course.course_code, (course.grade_test_1 + course.grade_test_2 + course.grade_test_3 + course.grade_exam) / 4 AS grade_final FROM course INNER JOIN name ON course.student_id = name.student_id";
+    $grades = $conn->query($sql);
+    $conn->close();
+    return $grades;
+};
+function grade_add_entry($student_id, $student_name, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam) {
+    # Check if student exists
+    $student = student_get_by_id($student_id);
+    if ($student == null)
+        # Add student
+        if (!student_add($student_id, $student_name))
+            return null;
+    # Check if duplicate enrolment is already present
+    if (course_get_course_by_student_id_and_course_code($student_id, $course_code))
+        return false;
+    # Add entry to course table
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "INSERT INTO course (student_id, course_code, grade_test_1, grade_test_2, grade_test_3, grade_exam) VALUES ('$student_id', '$course_code', '$grade_test_1', '$grade_test_2', '$grade_test_3', '$grade_exam')";
+    $conn->query($sql);
+    $conn->close();
+    # Refresh grades table
+    return grade_refresh_final_grades();
+};
+function grade_update_entry($og_student_id, $og_course_code, $student_id, $student_name, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam) {
+    # Check that student exists
+    $student = student_get_by_id($og_student_id);
+    if (!$student)
+        # Add student
+        if (!student_add($student_id, $student_name))
+            return null;
+    # Update course
+    if(!course_update_entry($og_student_id, $og_course_code, $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam))
+        return null;
+    # Refresh grades table
+    return grade_refresh_final_grades();
+};
+function grade_delete_entry($student_id, $course_code) {
+    # Delete entry from course table
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "DELETE FROM course WHERE student_id = '$student_id' AND course_code = '$course_code'";
+    if(!$conn->query($sql))
+        return false;
+    $conn->close();
+    # Refresh grades table
+    return grade_refresh_final_grades();
 };
 
 ?>
