@@ -6,8 +6,8 @@ $is_admin = $_SESSION['user']['is_admin'];
 if (array_key_exists('cache', $_SESSION) && array_key_exists('student', $_SESSION['cache'])) {
     $students = $_SESSION['cache']['student'];
 } else {
-    $courses = student_get_all();
-    $_SESSION['cache']['course'] = $courses;
+    $students = student_get_all();
+    $_SESSION['cache']['student'] = $students;
 }
 $search = new SearchBar(
     ['student_id' => 'Student ID', 'student_name' => 'Student Name'],
