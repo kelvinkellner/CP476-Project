@@ -1,5 +1,5 @@
 # CP476 Final Project
-### A simple grading app for students and teachers.
+### A simple grading app for teachers and students.
 
 This web app is built using PHP and runs on an Apache web server.
 Instructors can view/update grades and registration information,
@@ -42,6 +42,10 @@ Default user credentials can be changed in 'CP476/src/db/defaults/auth.txt'.
     * Username: user
 
     * User ID:  111111111
+
+  * Default student credentials:
+  
+      * Any Student Name and Student ID in 'CP476/src/db/defaults/name.txt' can be used to login as a student.
 
 ## Usage
 
