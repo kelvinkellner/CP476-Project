@@ -23,11 +23,16 @@ if($_SERVER['REQUEST_METHOD'])
 if (array_key_exists('user', $_SESSION)) {
     if ($_SESSION['user']['is_admin'])
         echo "Logged in as: ".$_SESSION['user']['user_name'].' ('.$_SESSION['user']['user_id'].' - Admin)';
+    else if (isset($_SESSION['user_is_student']) && $_SESSION['user_is_student'])
+        echo "Logged in as: ".$_SESSION['user']['user_name'].' ('.$_SESSION['user']['user_id'].' - Student)';
     else
         echo "Logged in as: ".$_SESSION['user']['user_name'].' ('.$_SESSION['user']['user_id'].')';
     include(__DIR__.'/src/auth/logout_button.php');
     echo "<br>";
-    include_once(__DIR__.'/src/table_viewer/container.php');
+    if (!isset($_SESSION['user_is_student']) || $_SESSION['user_is_student'] == false)
+        include_once(__DIR__.'/src/table_viewer/container.php');
+    else
+        include_once(__DIR__.'/src/table_viewer/tables/student_view.php');
 } else {
     include_once(__DIR__.'/src/auth/login.php');
     echo '<br/><br/><br/><br/><br/>';

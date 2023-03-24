@@ -4,6 +4,7 @@ include_once(__DIR__.'/../templates/head.php');
 
 <?php
 require_once(__DIR__.'/../../private.php');
+require_once(__DIR__.'/../../config.php');
 
 // Auth
 function auth_login(string $user_name, string $user_id): bool {
@@ -13,9 +14,25 @@ function auth_login(string $user_name, string $user_id): bool {
         $_SESSION['user'] = $user;
         return true;
     } else {
-        $new_user = auth_user_add($user_name, $user_id);
-        $_SESSION['user'] = $new_user;
-        return true;
+        if (ALLOW_STUDENTS_TO_LOGIN) {
+            # Check if student exists
+            $student = student_get($user_id, $user_name);
+            if ($student) {
+                $_SESSION['user'] = [
+                    'user_id' => $student['student_id'],
+                    'user_name' => $student['student_name'],
+                    'is_admin' => 0
+                ];
+                $_SESSION['user_is_student'] = true;
+                return true;
+            }
+        }
+        # Register new user
+        if (AUTO_REGISTER_UNKOWN_AUTH_USERS) {
+            $new_user = auth_user_add($user_name, $user_id);
+            $_SESSION['user'] = $new_user;
+            return true;
+        }
     }
     return false;
 };
@@ -151,6 +168,18 @@ function student_update($og_student_id, $student_id, $student_name) {
     $conn->close();
     return student_get_by_id($student_id);
 };
+function student_get($student_id, $student_name) {
+    # Get student
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    $sql = "SELECT * FROM name WHERE student_id = '$student_id' AND student_name = '$student_name'";
+    $result = $conn->query($sql);
+    $count = $result->num_rows;
+    $student = $result->fetch_assoc();
+    $conn->close();
+    if ($count == 1)
+        return $student;
+    return false;
+}
 function student_get_by_id($student_id) {
     # Get student by id
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
@@ -299,6 +328,21 @@ function grade_search($student_id='', $student_name='', $course_code='') {
     $conn->close();
     return $grades;
 };
+function grade_get_by_student_id_search_by_course_code($student_id, $course_code) {
+    # Get courses by exact student id and contained course code
+    $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
+    if ($student_id == '')
+        return null;
+    if ($course_code == '')
+        return grade_get_grades_by_student_id($student_id);
+    $sql = "SELECT * FROM final_grade WHERE student_id = '$student_id' AND course_code LIKE '%$course_code%'";
+    $result = $conn->query($sql);
+    $grades = [];
+    while ($row = $result->fetch_assoc())
+        array_push($grades, $row);
+    $conn->close();
+    return $grades;
+}
 function grade_refresh_final_grades() {
     # Clear all grades
     $conn = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
