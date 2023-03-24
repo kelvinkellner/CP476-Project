@@ -21,7 +21,7 @@ $search = new SearchBar(
     'grade_search'
 );
 $result = $search->check_for_searches();
-if($result)
+if($result !== null)
     $student_grades = $result;
 $course_grade_lookup = [];
 foreach ($courses as $row)

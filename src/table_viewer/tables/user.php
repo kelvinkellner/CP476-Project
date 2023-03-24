@@ -10,7 +10,7 @@ $search = new SearchBar(
     'auth_user_search'
 );
 $result = $search->check_for_searches();
-if($result)
+if($result !== null)
     $users = $result;
 $changes = new ChangeManager(
     'user',

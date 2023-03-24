@@ -10,7 +10,7 @@ $search = new SearchBar(
     'student_search'
 );
 $result = $search->check_for_searches();
-if($result)
+if($result !== null)
     $students = $result;
 if($is_admin) {
     $changes = new ChangeManager(
@@ -75,7 +75,7 @@ if($is_admin) {
 }
 ?>
 <?php $search->show(); ?>
-<table id="students_table">
+<table id="student_table">
     <tr>
         <th>Student ID</th>
         <th>Student Name</th>

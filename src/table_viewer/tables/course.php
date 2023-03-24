@@ -14,7 +14,7 @@ $search = new SearchBar(
     'course_search_unique_courses'
 );
 $result = $search->check_for_searches();
-if($result)
+if($result !== null)
     $courses = $result;
 ?>
 <?php $search->show(); ?>
