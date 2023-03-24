@@ -3,15 +3,22 @@ include_once(__DIR__.'/../../db/use_db.php');
 include_once(__DIR__.'/../search.php');
 include_once(__DIR__.'/../changes.php');
 $is_admin = $_SESSION['user']['is_admin'];
-$students = (array_key_exists('cache', $_SESSION) and array_key_exists('student', $_SESSION['cache']))? $_SESSION['cache']['student']: student_get_all();
+if (array_key_exists('cache', $_SESSION) && array_key_exists('student', $_SESSION['cache'])) {
+    $students = $_SESSION['cache']['student'];
+} else {
+    $courses = student_get_all();
+    $_SESSION['cache']['course'] = $courses;
+}
 $search = new SearchBar(
     ['student_id' => 'Student ID', 'student_name' => 'Student Name'],
     'student',
     'student_search'
 );
 $result = $search->check_for_searches();
-if($result !== null)
+if($result !== null) {
     $students = $result;
+    $_SESSION['cache']['student'] = $students;
+}
 if($is_admin) {
     $changes = new ChangeManager(
         'student',

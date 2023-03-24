@@ -21,8 +21,10 @@ $search = new SearchBar(
     'grade_search'
 );
 $result = $search->check_for_searches();
-if($result !== null)
+if($result !== null) {
     $student_grades = $result;
+    $_SESSION['cache']['grade'] = $student_grades;
+}
 $course_grade_lookup = [];
 foreach ($courses as $row)
     $course_grade_lookup[$row['student_id']][$row['course_code']] = $row;

@@ -10,8 +10,10 @@ $search = new SearchBar(
     'auth_user_search'
 );
 $result = $search->check_for_searches();
-if($result !== null)
+if($result !== null) {
     $users = $result;
+    $_SESSION['cache']['user'] = $users;
+}
 $changes = new ChangeManager(
     'user',
     [

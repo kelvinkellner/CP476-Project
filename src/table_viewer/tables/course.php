@@ -14,8 +14,10 @@ $search = new SearchBar(
     'course_search_unique_courses'
 );
 $result = $search->check_for_searches();
-if($result !== null)
+if($result !== null) {
     $courses = $result;
+    $_SESSION['cache']['course'] = $courses;
+}
 ?>
 <?php $search->show(); ?>
 <br/>
