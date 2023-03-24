@@ -94,19 +94,19 @@ function fill_default_values(PDO $conn, array $tables_created) {
     try {
         // Fill database with default values if tables were just created
         if (array_key_exists('name', $tables_created)) {
-            $default_names = parse_file(__DIR__.'/defaults/nameFile.txt');
+            $default_names = parse_file(__DIR__.'/defaults/name.txt');
             $stmt = $conn->prepare(SQL_INSERT_DEFAULT_NAMES);
             foreach($default_names as $name)
                 $stmt->execute($name);
         }
         if (array_key_exists('course', $tables_created)) {
-            $default_courses = parse_file(__DIR__.'/defaults/courseFile.txt');
+            $default_courses = parse_file(__DIR__.'/defaults/course.txt');
             $stmt = $conn->prepare(SQL_INSERT_DEFAULT_COURSES);
             foreach($default_courses as $course)
                 $stmt->execute($course);
         }
         if (array_key_exists('auth', $tables_created)) {
-            $default_auth_users = parse_file(__DIR__.'/defaults/authFile.txt');
+            $default_auth_users = parse_file(__DIR__.'/defaults/auth.txt');
             $stmt = $conn->prepare(SQL_INSERT_DEFAULT_AUTH_USERS);
             foreach($default_auth_users as $user)
                 $stmt->execute($user);
