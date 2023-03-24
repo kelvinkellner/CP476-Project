@@ -2,7 +2,6 @@
 include_once(__DIR__.'/../../db/use_db.php');
 include_once(__DIR__.'/../search.php');
 include_once(__DIR__.'/../changes.php');
-$is_admin = $_SESSION['user']['is_admin'];
 $users = (array_key_exists('cache', $_SESSION) and array_key_exists('user', $_SESSION['cache']))? $_SESSION['cache']['user']: auth_user_get_all();
 $search = new SearchBar(
     ['user_name' => 'User Name', 'user_id' => 'User ID'],

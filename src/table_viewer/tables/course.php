@@ -1,7 +1,6 @@
 <?php
 include_once(__DIR__.'/../../db/use_db.php');
 include_once(__DIR__.'/../search.php');
-$is_admin = $_SESSION['user']['is_admin'];
 if(array_key_exists('cache', $_SESSION) and array_key_exists('course', $_SESSION['cache']))
     $courses = $_SESSION['cache']['course'];
 else {
