@@ -101,7 +101,10 @@ class ChangeManager {
                 }
                 $result = call_user_func_array($submit, $args);
                 if (!$result) {
-                    echo "<script>alert('Failed to delete $this->context_name.')</script>";
+                    if ($this->context_name === 'student')
+                        echo "<script>alert('Failed to delete $this->context_name. Confirm that they are not enrolled in any courses.')</script>";
+                    else
+                        echo "<script>alert('Failed to delete $this->context_name.')</script>";
                     return false;
                 }
                 else

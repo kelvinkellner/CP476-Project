@@ -183,6 +183,9 @@ function student_delete($student_id) {
     # Check that student exists
     if(!student_exists($student_id))
         return false;
+    # Check that student is not enrolled in any courses
+    if(course_get_courses_by_student_id($student_id))
+        return false;
     # Delete student
     $mysqli = connect_to_db();
     $sql = "DELETE FROM name WHERE student_id = ?;";
@@ -271,7 +274,7 @@ function student_search($student_id='', $student_name='') {
 function course_get_unique_courses() {
     # Get student enrollment count
     $mysqli = connect_to_db();
-    $sql = "SELECT course_code, COUNT(*) AS student_count FROM course GROUP BY course_code;";
+    $sql = "SELECT course_code, COUNT(*) AS student_count FROM course GROUP BY course_code ORDER BY course_code;";
     $stmt = $mysqli->prepare($sql);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -321,7 +324,7 @@ function course_search_unique_courses($course_code='') {
     # Search for courses containing course code
     $mysqli = connect_to_db();
     $search_course_code = '%'.$course_code.'%';
-    $sql = "SELECT course_code, COUNT(*) AS student_count FROM course WHERE course_code LIKE ? GROUP BY course_code;";
+    $sql = "SELECT course_code, COUNT(*) AS student_count FROM course WHERE course_code LIKE ? GROUP BY course_code ORDER BY course_code;";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('s', $search_course_code);
     $stmt->execute();
