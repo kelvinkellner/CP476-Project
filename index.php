@@ -41,7 +41,7 @@ if (array_key_exists('user', $_SESSION)) {
     echo '<form id="reset_everything" method="post">';
     echo '<input type="submit" name="reset_everything" value="Reset Absolutely Everything">';
     echo '</form>';
-    echo '<p><b>WARNING:</b> There is no way to automatically bring back this data once it is deletes.</p>';
+    echo '<p><b>WARNING:</b> There is no way to retrieve this data once it is deleted.</p>';
 }
 ?>
 
