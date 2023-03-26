@@ -49,6 +49,11 @@ $changes = new ChangeManager(
             ],
             'submit_function' => 'student_update',
             'on_success_function' => function () {
+                # Clear the cache for the student's grades
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['grade']))
+                    unset($_SESSION['cache']['grade']);
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['grade_course']))
+                    unset($_SESSION['cache']['grade_course']);
                 $_SESSION['cache']['student'] = student_get_all();
                 echo "<p class='success_message'>Student updated successfully!</p><br/>";
                 return $_SESSION['cache']['student'];

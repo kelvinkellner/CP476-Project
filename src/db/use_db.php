@@ -195,12 +195,16 @@ function student_delete($student_id) {
     return true;
 };
 function student_update($og_student_id, $student_id, $student_name) {
-    # Check that student exists
-    if(!student_exists($student_id))
-        return false;
-    # Check if student ID is already taken
-    if($og_student_id != $student_id && student_get_by_id($student_id))
-        return false;
+    # If student ID is changed...
+    if($og_student_id != $student_id) {
+        # Check if new student ID is already taken
+        if(student_exists($student_id)) 
+            return false;
+        # Update student ID in course table
+        $courses = course_get_courses_by_student_id($og_student_id);
+        if($courses)
+            course_update_student_id($og_student_id, $student_id);
+    }
     # Update student
     $mysqli = connect_to_db();
     $sql = "UPDATE name SET student_id = ?, student_name = ? WHERE student_id = ?;";
@@ -208,6 +212,8 @@ function student_update($og_student_id, $student_id, $student_name) {
     $stmt->bind_param('sss', $student_id, $student_name, $og_student_id);
     $stmt->execute();
     $mysqli->close();
+    # Update final grades
+    grade_refresh_final_grades();
     return student_get_by_id($student_id);
 };
 function student_get($student_id, $student_name) {
@@ -348,6 +354,22 @@ function course_update_entry($og_student_id, $og_course_code, $student_id, $cour
     $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
+        return true;
+    return false;
+};
+function course_update_student_id($og_student_id, $student_id) {
+    # Check that entries exist
+    if(!course_get_courses_by_student_id($og_student_id))
+        return null;
+    # Change student id in all course entries
+    $mysqli = connect_to_db();
+    $sql = "UPDATE course SET student_id = ? WHERE student_id = ?;";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param('ss', $student_id, $og_student_id);
+    $stmt->execute();
+    $count = $mysqli->affected_rows;
+    $mysqli->close();
+    if ($count > 0)
         return true;
     return false;
 };
