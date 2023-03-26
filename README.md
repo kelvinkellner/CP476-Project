@@ -69,10 +69,10 @@ For testing purposes, there is currently a 'Clear Everything' button on the main
 * Login with your Full Name and Student ID.
 * Access a table of your grades for all courses you are registered in.
 
+## Video Demonstration
+
+> [CP476 Final Project Demo (YouTube Video)](https://www.youtube.com/watch?v=6ppifiezMik)
+
 ## License
 
 This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details.
-
-## Video Demonstration
-
-* [CP476 Final Project Demo (https://www.youtube.com/watch?v=6ppifiezMik)](https://www.youtube.com/watch?v=6ppifiezMik)
