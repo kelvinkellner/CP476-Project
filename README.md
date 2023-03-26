@@ -18,7 +18,7 @@ AddHandler application/x-httpd-php .php
 </FilesMatch>
 LoadModule php_module "C:\php\php8apache2_4.dll"
 ```
-3. In `php.ini` (`C:\php\php.ini` on Windows), ensure that the PHP extension folder is set correctly (e.g. `extension_dir = "C:/php/ext/"`) and that the 'mysqli' and 'pdo_mysql' PHP extensions are enabled by deleting the `;` if there is one on front of each line.
+3. In `php.ini` (`C:\php\php.ini` on Windows), ensure that the PHP extension folder is set correctly (e.g. `extension_dir = "C:/php/ext/"`) and that the 'mysqli' and 'pdo_mysql' PHP extensions are enabled by deleting the "`;`" on front of each line, if there is one.
 4. Clone this repository directly into your Apache web server's root directory (`C:\Apache24\htdocs\` on Windows).
 5. You will need to create a file called `private.php` directly in the `[...]\CP476\` directory. This file should contain the following code:
 ```php
@@ -30,7 +30,7 @@ CONST PASSWORD = 'your_mysql_password'; # or null if your mysql does not use a p
 CONST DB_NAME = 'your_db_name';         # ex.'my_grading_app'
 ?>
 ```
-6. Start the Apache server and navigate to '[localhost/CP476/index.php](http://localhost/CP476/index.php)' in your web browser.
+6. Start the Apache server and navigate to [localhost/CP476/index.php](http://localhost/CP476/index.php) in your web browser.
 7. You're all set! :)
 
 ## Database Setup
