@@ -25,8 +25,8 @@ LoadModule php_module "C:\php\php8apache2_4.dll"
 <?php
 # MySQL Database Connection
 CONST HOST = 'your_host';               # ex.'localhost'
-CONST USERNAME = 'your_sql_username';   # ex.'root'
-CONST PASSWORD = 'your_sql_password';   
+CONST USERNAME = 'your_mysql_username'; # ex.'root'
+CONST PASSWORD = 'your_mysql_password'; # or null if your mysql does not use a password
 CONST DB_NAME = 'your_db_name';         # ex.'my_grading_app'
 ?>
 ```
