@@ -8,11 +8,12 @@ require_once(__DIR__.'/../../config.php');
 
 // MySQL overhead
 function connect_to_db(): mysqli {
-    $mysqli = new mysqli(HOST, USERNAME, PASSWORD, DB_NAME);
-    if ($mysqli->connect_errno) {
-        echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
-        return null;
-    }
+    $mysqli = mysqli_init();
+    if (!$mysqli)
+        die('mysqli_init failed');
+    if (!$mysqli->real_connect(HOST, USERNAME, PASSWORD, DB_NAME, null, null, MYSQLI_CLIENT_FOUND_ROWS))
+        die('Connect Error ('.mysqli_connect_errno().') '.mysqli_connect_error());
+    // echo 'Success... ' . $mysqli->host_info . "\n";
     return $mysqli;
 }
 
@@ -22,10 +23,9 @@ function auth_user_exists(string $user_name, string $user_id): bool {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM auth WHERE user_name = ? AND user_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $user_name, $user_id);
+    $stmt->bind_param('si', $user_name, $user_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $count = $result->num_rows;
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count >= 1)
         return true;
@@ -68,7 +68,7 @@ function auth_user_add(string $user_name, string $user_id, int $is_admin = 0) {
     $mysqli = connect_to_db();
     $sql = "INSERT INTO auth (user_name, user_id, is_admin) VALUES (?, ?, ?);";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ssi', $user_name, $user_id, $is_admin);
+    $stmt->bind_param('sii', $user_name, $user_id, $is_admin);
     $stmt->execute();
     $mysqli->close();
     return auth_user_get($user_name, $user_id);
@@ -81,7 +81,7 @@ function auth_user_delete(string $user_name, string $user_id) {
     $mysqli = connect_to_db();
     $sql = "DELETE FROM auth WHERE user_name = ? AND user_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $user_name, $user_id);
+    $stmt->bind_param('si', $user_name, $user_id);
     $stmt->execute();
     $mysqli->close();
     return true;
@@ -97,7 +97,7 @@ function auth_user_update(string $og_user_name, string $og_user_id, string $user
     $mysqli = connect_to_db();
     $sql = "UPDATE auth SET user_name = ?, user_id = ?, is_admin = ? WHERE user_name = ? AND user_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ssiss', $user_name, $user_id, $is_admin, $og_user_name, $og_user_id);
+    $stmt->bind_param('siisi', $user_name, $user_id, $is_admin, $og_user_name, $og_user_id);
     $stmt->execute();
     $mysqli->close();
     return auth_user_get($user_name, $user_id);
@@ -107,11 +107,11 @@ function auth_user_get(string $user_name, string $user_id): array {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM auth WHERE user_name = ? AND user_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $user_name, $user_id);
+    $stmt->bind_param('si', $user_name, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $count = $result->num_rows;
     $user = $result->fetch_assoc();
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
         return $user;
@@ -143,7 +143,7 @@ function auth_user_search($user_name='', $user_id='') {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM auth WHERE user_name LIKE ? AND user_id LIKE ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $search_user_name, $search_user_id);
+    $stmt->bind_param('si', $search_user_name, $search_user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $users = $result->fetch_all(MYSQLI_ASSOC);
@@ -157,10 +157,9 @@ function student_exists($student_id) {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM name WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('s', $student_id);
+    $stmt->bind_param('i', $student_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $count = $result->num_rows;
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count >= 1)
         return true;
@@ -174,7 +173,7 @@ function student_add($student_id, $student_name) {
     $mysqli = connect_to_db();
     $sql = "INSERT INTO name (student_id, student_name) VALUES (?, ?);";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $student_id, $student_name);
+    $stmt->bind_param('is', $student_id, $student_name);
     $stmt->execute();
     $mysqli->close();
     return student_get_by_id($student_id);
@@ -190,7 +189,7 @@ function student_delete($student_id) {
     $mysqli = connect_to_db();
     $sql = "DELETE FROM name WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('s', $student_id);
+    $stmt->bind_param('i', $student_id);
     $stmt->execute();
     $mysqli->close();
     return true;
@@ -206,7 +205,7 @@ function student_update($og_student_id, $student_id, $student_name) {
     $mysqli = connect_to_db();
     $sql = "UPDATE name SET student_id = ?, student_name = ? WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('sss', $student_id, $student_name, $og_student_id);
+    $stmt->bind_param('isi', $student_id, $student_name, $og_student_id);
     $stmt->execute();
     $mysqli->close();
     return student_get_by_id($student_id);
@@ -216,11 +215,11 @@ function student_get($student_id, $student_name) {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM name WHERE student_id = ? AND student_name = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $student_id, $student_name);
+    $stmt->bind_param('is', $student_id, $student_name);
     $stmt->execute();
     $result = $stmt->get_result();
-    $count = $result->num_rows;
     $student = $result->fetch_assoc();
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
         return $student;
@@ -231,11 +230,11 @@ function student_get_by_id($student_id) {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM name WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('s', $student_id);
+    $stmt->bind_param('i', $student_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $count = $result->num_rows;
     $student = $result->fetch_assoc();
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
         return $student;
@@ -262,7 +261,7 @@ function student_search($student_id='', $student_name='') {
     $search_student_name = '%'.$student_name.'%';
     $sql = "SELECT * FROM name WHERE student_id LIKE ? AND student_name LIKE ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $search_student_id, $search_student_name);
+    $stmt->bind_param('is', $search_student_id, $search_student_name);
     $stmt->execute();
     $result = $stmt->get_result();
     $students = $result->fetch_all(MYSQLI_ASSOC);
@@ -298,7 +297,7 @@ function course_get_courses_by_student_id($student_id) {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM course WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('s', $student_id);
+    $stmt->bind_param('i', $student_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $courses = $result->fetch_all(MYSQLI_ASSOC);
@@ -310,11 +309,11 @@ function course_get_course_by_student_id_and_course_code($student_id, $course_co
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM course WHERE student_id = ? AND course_code = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $student_id, $course_code);
+    $stmt->bind_param('is', $student_id, $course_code);
     $stmt->execute();
     $result = $stmt->get_result();
-    $count = $result->num_rows;
     $course = $result->fetch_assoc();
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
         return $course;
@@ -344,10 +343,9 @@ function course_update_entry($og_student_id, $og_course_code, $student_id, $cour
     $mysqli = connect_to_db();
     $sql = "UPDATE course SET student_id = ?, course_code = ?, grade_test_1 = ?, grade_test_2 = ?, grade_test_3 = ?, grade_exam = ? WHERE student_id = ? AND course_code = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ssiiiiss', $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam, $og_student_id, $og_course_code);
+    $stmt->bind_param('isiiiiis', $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam, $og_student_id, $og_course_code);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $count = $result->num_rows;
+    $count = $mysqli->affected_rows;
     $mysqli->close();
     if ($count == 1)
         return true;
@@ -371,7 +369,7 @@ function grade_get_grades_by_student_id($student_id) {
     $mysqli = connect_to_db();
     $sql = "SELECT * FROM final_grade WHERE student_id = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('s', $student_id);
+    $stmt->bind_param('i', $student_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $grades = $result->fetch_all(MYSQLI_ASSOC);
@@ -389,7 +387,7 @@ function grade_search($student_id='', $student_name='', $course_code='') {
     $search_course_code = '%'.$course_code.'%';
     $sql = "SELECT * FROM final_grade WHERE student_id LIKE ? AND student_name LIKE ? AND course_code LIKE ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('sss', $search_student_id, $search_student_name, $search_course_code);
+    $stmt->bind_param('iss', $search_student_id, $search_student_name, $search_course_code);
     $stmt->execute();
     $result = $stmt->get_result();
     $grades = $result->fetch_all(MYSQLI_ASSOC);
@@ -408,7 +406,7 @@ function grade_get_by_student_id_search_by_course_code($student_id, $course_code
     $search_course_code = '%'.$course_code.'%';
     $sql = "SELECT * FROM final_grade WHERE student_id = ? AND course_code LIKE ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $student_id, $search_course_code);
+    $stmt->bind_param('is', $student_id, $search_course_code);
     $stmt->execute();
     $result = $stmt->get_result();
     $grades = $result->fetch_all(MYSQLI_ASSOC);
@@ -442,7 +440,7 @@ function grade_add_entry($student_id, $student_name, $course_code, $grade_test_1
     $mysqli = connect_to_db();
     $sql = "INSERT INTO course (student_id, course_code, grade_test_1, grade_test_2, grade_test_3, grade_exam) VALUES (?, ?, ?, ?, ?, ?);";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ssiiii', $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam);
+    $stmt->bind_param('isiiii', $student_id, $course_code, $grade_test_1, $grade_test_2, $grade_test_3, $grade_exam);
     $stmt->execute();
     $mysqli->close();
     # Refresh grades table
@@ -469,7 +467,7 @@ function grade_delete_entry($student_id, $course_code) {
     $mysqli = connect_to_db();
     $sql = "DELETE FROM course WHERE student_id = ? AND course_code = ?;";
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('ss', $student_id, $course_code);
+    $stmt->bind_param('is', $student_id, $course_code);
     $stmt->execute();
     $mysqli->close();
     # Refresh grades table
