@@ -7,7 +7,7 @@ and students can login to view their grades in all their courses.
 
 ## Installation
 
-1. Install [PHP](https://www.php.net/downloads.php) and [Apache](https://httpd.apache.org/download.cgi).
+1. Install [PHP](https://windows.php.net/qa/) and [Apache](https://www.apachelounge.com/download/).
 2. Clone this repository directly into your Apache web server's root directory ('C:\Apache24\htdocs\' on Windows).
 3. You will need to create a file called 'private.php' directly in the 'CP476' directory. This file should contain the following code:
 ```php
