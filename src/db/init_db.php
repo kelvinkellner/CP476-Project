@@ -6,6 +6,8 @@ function parse_file(string $file_path): array {
     $data = [];
     while (($line = fgets($file)) !== FALSE)
         $data[] = explode(', ', $line);
+        foreach ($data as $key => $value)
+            $data[$key] = array_map('trim', $value);
     fclose($file);
     return $data;
 }
