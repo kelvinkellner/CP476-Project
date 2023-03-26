@@ -59,7 +59,7 @@ For testing purposes, there is currently a 'Clear Everything' button on the main
 * Navigate to various pages by selecting either 'Students', 'Courses', or 'Grades' from the navigation bar.
 * Each page displays a table of information pulled from the database, and allows you to add, edit, delete, or search through records.
 
-### Admininstrators
+### Administrators
 * Login with your Username and User ID.
 * Access all of the same features as an instructor, plus the additional 'Users' tab where you can view, add, edit, delete, or search authorized users, such as instructors and other administrators.
 
