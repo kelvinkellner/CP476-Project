@@ -3,12 +3,6 @@ include_once(__DIR__.'/src/templates/head.php');
 ?>
 
 <?php
-echo "<p>".student_get('190668940', 'Kelvin Kellner')."</p>";
-echo "<p>".student_get('190668940', 'Kelvin Kellner')."</p>";
-?>
-
-
-<?php
 // Log the use out if logout button is pressed
 if($_SERVER['REQUEST_METHOD'])
     if(isset($_POST['logout']))
@@ -47,7 +41,7 @@ if (array_key_exists('user', $_SESSION)) {
     echo '<form id="reset_everything" method="post">';
     echo '<input type="submit" name="reset_everything" value="Reset Absolutely Everything">';
     echo '</form>';
-    echo '<p><b>WARNING:</b> There is no way to restore this data once it is deleted.</p>';
+    echo '<p><b>WARNING:</b> There is no way to retrieve this data once it is deleted.</p>';
 }
 ?>
 
