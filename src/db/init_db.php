@@ -59,7 +59,7 @@ function connect_to_mysql(): PDO {
         return $conn;
     } catch(PDOException $e) {
         error_log($e->getMessage());
-        exit('Error connecting to database');
+        exit('Error connecting to database for initialization: '.$e->getMessage());
     }
     return null;
 };
