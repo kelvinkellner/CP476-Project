@@ -53,6 +53,8 @@ For all accounts, their is a 'Logout' button at the top of the page that will en
 
 For testing purposes, there is currently a 'Clear Everything' button on the main page that will clear the session, delete all records from the database, and reinitialize the app with default values.
 
+The application caches table data to the web browser. If data appears stale, pressing the 'Clear Filters' button for any table will refresh the cache using a new call to the database.
+
 ### Instructors
 * If you already have an account: login with your Username  and User ID.
 * If you are not registered, an admin must register your details before you can login.
