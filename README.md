@@ -59,7 +59,7 @@ Default user credentials can be changed in `[...]\CP476\src\db\defaults\auth.txt
 
 ## Usage
 
-For all accounts, their is a `Logout` button at the top of the page that will end your session.
+For all accounts, there is a `Logout` button at the top of the page that will end your session.
 
 The application caches table data to the web browser. If data appears stale, pressing the `Clear Filters` button for any table will refresh the cache using a new call to the database.
 
