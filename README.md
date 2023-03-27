@@ -19,7 +19,7 @@ AddHandler application/x-httpd-php .php
 LoadModule php_module "C:\php\php8apache2_4.dll"
 ```
 3. In `php.ini` (`C:\php\php.ini` on Windows), ensure that the PHP extension folder is set correctly (e.g. `extension_dir = "C:/php/ext/"`) and that the 'mysqli' and 'pdo_mysql' PHP extensions are enabled by deleting the "`;`" on front of each line, if there is one.
-4. Clone this repository directly into your Apache web server's root directory (`C:\Apache24\htdocs\` on Windows) and name the folder to `CP476`.
+4. Clone this repository directly into your Apache web server's root directory (`C:\Apache24\htdocs\` on Windows) and name the folder `CP476`.
 5. You will need to create a file called `private.php` directly in the `[...]\CP476\` directory. This file should contain the following code:
 ```php
 <?php
