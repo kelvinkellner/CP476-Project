@@ -84,6 +84,8 @@ $changes = new ChangeManager(
                 global $courses;
                 global $student_grades;
                 global $course_grade_lookup;
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['course']))
+                    unset($_SESSION['cache']['course']);
                 $_SESSION['cache']['grade_course'] = course_get_all();
                 $courses = $_SESSION['cache']['grade_course'];
                 $_SESSION['cache']['grade'] = grade_get_all();
@@ -107,6 +109,8 @@ $changes = new ChangeManager(
                 global $courses;
                 global $student_grades;
                 global $course_grade_lookup;
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['course']))
+                    unset($_SESSION['cache']['course']);
                 $_SESSION['cache']['grade_course'] = course_get_all();
                 $courses = $_SESSION['cache']['grade_course'];
                 $_SESSION['cache']['grade'] = grade_get_all();
