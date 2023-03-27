@@ -50,6 +50,10 @@ $changes = new ChangeManager(
                 global $courses;
                 global $student_grades;
                 global $course_grade_lookup;
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['student']))
+                    unset($_SESSION['cache']['student']);
+                if(isset($_SESSION['cache']) && isset($_SESSION['cache']['course']))
+                    unset($_SESSION['cache']['course']);
                 $search->clear_text_fields();
                 $_SESSION['cache']['grade_course'] = course_get_all();
                 $courses = $_SESSION['cache']['grade_course'];
