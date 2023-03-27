@@ -15,6 +15,7 @@ function parse_file(string $file_path): array {
 // Init DB
 
 CONST SQL_CREATE_DB = "CREATE DATABASE IF NOT EXISTS " . DB_NAME;
+CONST SQL_USE_DB = "USE " . DB_NAME;
 CONST SQL_CREATE_NAME_TABLE = "CREATE TABLE IF NOT EXISTS name (
     student_id INT(9) PRIMARY KEY NOT NULL,
     student_name VARCHAR(30) NOT NULL
@@ -53,7 +54,7 @@ CONST SQL_POPULATE_FINAL_GRADES = "INSERT INTO final_grade (student_id, student_
 function connect_to_mysql(): PDO {
     try {
         # SQL variables come from config/private.php
-        $conn = new PDO("mysql:host=".HOST.";dbname=".DB_NAME, USERNAME, PASSWORD);
+        $conn = new PDO("mysql:host=".HOST, USERNAME, PASSWORD);
         // set the PDO error mode to exception
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
@@ -134,7 +135,7 @@ function refresh_final_grades(PDO $conn) {
 function init_db(): bool {
     $conn = connect_to_mysql();
     // Create database, after successful connection create tables
-    if ($conn->exec(SQL_CREATE_DB)) {
+    if ($conn->exec(SQL_CREATE_DB) && $conn->exec(SQL_USE_DB)) {
         $tables_created = create_all_tables($conn);
         if(!empty($tables_created))
             fill_default_values($conn, $tables_created);
