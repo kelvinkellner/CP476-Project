@@ -135,18 +135,21 @@ function refresh_final_grades(PDO $conn) {
 function init_db(): bool {
     $conn = connect_to_mysql();
     // Create database, after successful connection create tables
-    if ($conn->exec(SQL_CREATE_DB) && $conn->exec(SQL_USE_DB)) {
+    if ($conn->exec(SQL_CREATE_DB)) {
+        $conn->exec(SQL_USE_DB);
         $tables_created = create_all_tables($conn);
         if(!empty($tables_created))
             fill_default_values($conn, $tables_created);
         $conn = null;
         return true;
     }
+    $conn = null;
     return false;
 };
 
 function reset_db(): void {
     $conn = connect_to_mysql();
+    $conn->exec(SQL_USE_DB);
     $conn->exec(SQL_DROP_ALL_TABLES);
     $conn = null;
 };
