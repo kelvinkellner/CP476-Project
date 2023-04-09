@@ -1,9 +1,7 @@
 # CP476 Final Project
-### A simple grading app for teachers and students.
+### A simple grading app for teachers.
 
 This web app is built using PHP and runs on an Apache web server.
-Instructors can view/update grades and registration information,
-and students can login to view their grades in all their courses.
 
 ## Installation
 
@@ -39,49 +37,11 @@ The database is initialized automatically when you first run the app.
 
 All default database values are stored in `[...]\CP476\src\db\defaults\`. 
 
-Default user credentials can be changed in `[...]\CP476\src\db\defaults\auth.txt`.
-
-  * Default admin credentials:
-
-    * Username: admin
-
-    * User ID:  123456789
-
-  * Default instructor credentials:
-
-    * Username: user
-
-    * User ID:  111111111
-
-  * Default student credentials:
-  
-      * Any Student Name and Student ID in `[...]\CP476\src\db\defaults\name.txt` can be used to login as a student.
-
 ## Usage
 
-For all accounts, there is a `Logout` button at the top of the page that will end your session.
-
-The application caches table data to the web browser. If data appears stale, pressing the `Clear Filters` button for any table will refresh the cache using a new call to the database.
-
-For testing purposes, there is currently a `Clear Everything` button on the main page that will clear the session, delete all records from the database, and reinitialize the app with default values.
-
-### Instructors
-* If you already have an account: login with your Username  and User ID.
-* If you are not registered, an admin must register your details before you can login.
-* Navigate to various pages by selecting either `Students`, `Courses`, or `Grades` from the navigation bar.
-* Each page displays a table of information pulled from the database, and allows you to add, edit, delete, or search through records.
-
-### Administrators
-* Login with your Username and User ID.
-* Access all of the same features as an instructor, plus the additional `Users` tab where you can view, add, edit, delete, or search authorized users, such as instructors and other administrators.
-
-### Students
-* Login with your Full Name and Student ID.
-* Access a table of your grades for all courses you are registered in.
-
-## Video Demonstration
-
-> [CP476 Final Project Demo (YouTube Video)](https://www.youtube.com/watch?v=6ppifiezMik)
+* Navigate to various pages by selecting either `Names`, `Courses`, or `Grades` from the navigation bar.
+* Each page displays a table of information pulled from the database.
+* The `Names` and `Courses` pages allow you to edit details for a row and press `Save Changes` to update the record in the database.
 
 ## License
 
