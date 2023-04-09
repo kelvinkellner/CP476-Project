@@ -1,4 +1,0 @@
-<?php
-const AUTO_REGISTER_UNKOWN_AUTH_USERS = false;
-const ALLOW_STUDENTS_TO_LOGIN = true;
-?>
