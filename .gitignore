@@ -1,3 +1,4 @@
-# Ignore private config files
+# Ignore private files
 private.php
+# Ignore demo files
 README.pdf
