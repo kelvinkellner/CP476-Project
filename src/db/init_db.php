@@ -53,7 +53,7 @@ CONST SQL_POPULATE_FINAL_GRADES = "INSERT INTO final_grade (student_id, student_
 
 function connect_to_mysql(): PDO {
     try {
-        # SQL variables come from config/private.php
+        # SQL variables come from private.php
         $conn = new PDO("mysql:host=".HOST, USERNAME, PASSWORD);
         // set the PDO error mode to exception
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
