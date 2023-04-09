@@ -4,7 +4,6 @@ include_once(__DIR__.'/../templates/head.php');
 
 <?php
 require_once(__DIR__.'/../../private.php');
-require_once(__DIR__.'/../../config.php');
 
 // MySQL overhead
 function connect_to_db(): mysqli {
