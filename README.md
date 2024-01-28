@@ -3,6 +3,10 @@
 
 This web app is built using PHP and runs on an Apache web server.
 
+## Video Demonstration
+
+[![Watch Video Demo](https://img.youtube.com/vi/6ppifiezMik/maxresdefault.jpg)](https://www.youtube.com/watch?v=6ppifiezMik)
+
 ## Installation
 
 1. Install [PHP](https://windows.php.net/qa/) and [Apache](https://www.apachelounge.com/download/).
